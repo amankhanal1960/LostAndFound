@@ -350,10 +350,6 @@ export default function ReportItemPage() {
                 <div className="space-y-2">
                   <Label htmlFor="images">Photos (Optional)</Label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600 mb-2">
-                      Upload photos to help identify the item
-                    </p>
                     <Input
                       id="images"
                       type="file"
@@ -362,46 +358,65 @@ export default function ReportItemPage() {
                       onChange={handleImageUpload}
                       className="hidden"
                     />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      //triggers the browser file picker
-                      onClick={() => document.getElementById("images")?.click()}
-                    >
-                      Choose Files
-                    </Button>
-                  </div>
-                  {formData.images.length > 0 && (
-                    <div>
-                      <div className="text-sm text-gray-600">
-                        {formData.images.length} file(s) selected
-                      </div>
-                      <div className="mt-4 grid grid-cols-5 gap-3">
-                        {formData.images.map((file, idx) => {
-                          // 1) Create a temporary URL
-                          const blobUrl = URL.createObjectURL(file);
 
-                          return (
-                            <div
-                              key={idx}
-                              className="relative h-24 w-24 rounded-lg overflow-hidden border"
-                            >
-                              <Image
-                                src={blobUrl}
-                                alt={`preview-${idx}`}
-                                fill
-                                sizes="(max-width: 640px) 100px, 150px"
-                                style={{ objectFit: "cover" }}
-                                onLoadingComplete={() => {
-                                  URL.revokeObjectURL(blobUrl);
-                                }}
-                              />
-                            </div>
-                          );
-                        })}
+                    {formData.images.length === 0 ? (
+                      // Show upload prompt when no images
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <Upload className="h-8 w-8 text-gray-400 mx-auto" />
+                        <p className="text-sm text-gray-600">
+                          Upload photos to help identify the item
+                        </p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="mt-2"
+                          onClick={() =>
+                            document.getElementById("images")?.click()
+                          }
+                        >
+                          Choose Files
+                        </Button>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      // Show previews + add more button when images exist
+                      <div className="space-y-4">
+                        <div className="text-sm text-gray-600 text-left">
+                          {formData.images.length} file(s) selected
+                        </div>
+                        <div className="grid grid-cols-5 gap-3">
+                          {formData.images.map((file, idx) => {
+                            const blobUrl = URL.createObjectURL(file);
+                            return (
+                              <div
+                                key={idx}
+                                className="relative h-24 w-24 rounded-lg overflow-hidden border"
+                              >
+                                <Image
+                                  src={blobUrl}
+                                  alt={`preview-${idx}`}
+                                  fill
+                                  sizes="(max-width: 640px) 100px, 150px"
+                                  style={{ objectFit: "cover" }}
+                                  onLoadingComplete={() => {
+                                    URL.revokeObjectURL(blobUrl);
+                                  }}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() =>
+                            document.getElementById("images")?.click()
+                          }
+                        >
+                          Add More
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
