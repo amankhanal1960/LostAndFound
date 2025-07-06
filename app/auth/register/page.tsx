@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import {
   Card,
   CardContent,
@@ -12,26 +14,35 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Chrome, Facebook, Eye, EyeOff, Search } from "lucide-react";
 
 function SignupForm() {
   const router = useRouter();
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="relative min-h-screen flex items-center justify-center p-4">
       {/* Logo Top-Left */}
-      <div
-        className="absolute top-4 lg:left-12 left-4 flex items-center cursor-pointer gap-2"
-        onClick={() => router.push("/")}
-      >
-        <span className="w-8 h-8 md:w-10 md:h-10 bg-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-base md:text-lg">
-          L
-        </span>
-        <span className="hidden md:block text-xl md:text-2xl font-bold text-blue-800">
-          Lost & Found
-        </span>
+      <div className="flex items-center space-x-6 absolute top-4 left-4">
+        <div className="p-3 bg-blue-600 rounded-lg">
+          <Search
+            className="h-4 w-4 text-white cursor-pointer"
+            onClick={() => router.push("/dashboard")}
+          />
+        </div>
+        <div>
+          <button
+            className="cursor-pointer"
+            onClick={() => router.push("/dashboard")}
+          >
+            <h1 className="text-lg font-bold text-gray-900">Lost & Found</h1>
+            <p className="text-xs text-gray-600">Management System</p>
+          </button>
+        </div>
       </div>
 
-      <Card className="w-full max-w-lg shadow-xl">
+      <Card className="w-full max-w-lg">
         <CardHeader className="space-y-2 text-center pb-6">
           <CardTitle className="text-2xl font-bold tracking-tight text-blue-900">
             Create an account
@@ -46,14 +57,16 @@ function SignupForm() {
           <div className="grid grid-cols-2 gap-3">
             <Button
               variant="outline"
-              className="w-full hover:bg-blue-50 hover:border-blue-200 bg-white text-black"
+              className="w-full lg:hover:ring-0 lg:hover:border-blue-700 bg-white text-black"
             >
+              <Chrome className="mr-2 h-4 w-4" />
               Google
             </Button>
             <Button
               variant="outline"
-              className="w-full hover:bg-blue-50 hover:border-blue-200 bg-white text-black"
+              className="w-full lg:hover:ring-0 lg:hover:border-blue-700 bg-white text-black"
             >
+              <Facebook className="mr-2 h-4 w-4" />
               Facebook
             </Button>
           </div>
@@ -77,7 +90,7 @@ function SignupForm() {
                 id="name"
                 type="text"
                 placeholder="Enter your full name"
-                className="focus:ring-blue-500 focus:border-blue-500"
+                className="lg:focus:ring-0 lg:focus:border-blue-700"
               />
             </div>
 
@@ -87,18 +100,36 @@ function SignupForm() {
                 id="email"
                 type="email"
                 placeholder="Enter your email"
-                className="focus:ring-blue-500 focus:border-blue-500"
+                className="lg:focus:ring-0 lg:focus:border-blue-700"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                className="focus:ring-blue-500 focus:border-blue-500"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="pr-10 lg:focus:ring-0 lg:focus:border-blue-700"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-blue-500" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-blue-500" />
+                  )}
+                </Button>
+              </div>
             </div>
 
             <Button

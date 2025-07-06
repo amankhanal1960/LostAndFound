@@ -30,6 +30,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const SidebarContent = () => (
@@ -83,6 +84,9 @@ export default function Header() {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const userName = "John Doe";
+
+  const router = useRouter();
+
   return (
     <div>
       <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 z-50 h-16">
@@ -90,13 +94,21 @@ export default function Header() {
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-6">
               <div className="p-3 bg-blue-600 rounded-lg">
-                <Search className="h-4 w-4 text-white" />
+                <Search
+                  className="h-4 w-4 text-white cursor-pointer"
+                  onClick={() => router.push("/dashboard")}
+                />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900">
-                  Lost & Found
-                </h1>
-                <p className="text-xs text-gray-600">Management System</p>
+                <button
+                  className="cursor-pointer"
+                  onClick={() => router.push("/dashboard")}
+                >
+                  <h1 className="text-lg font-bold text-gray-900">
+                    Lost & Found
+                  </h1>
+                  <p className="text-xs text-gray-600">Management System</p>
+                </button>
               </div>
             </div>
           </div>
@@ -147,8 +159,10 @@ export default function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log out
+                  <button className="flex" onClick={() => router.push("/")}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

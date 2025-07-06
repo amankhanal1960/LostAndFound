@@ -1,10 +1,14 @@
 "use client";
 
-import Image from "next/image";
+// import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  //  CardHeader, CardTitle
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 
 import {
   Search,
@@ -17,9 +21,9 @@ import {
   TrendingUp,
   Users,
   // Clock,
-  MapPin,
-  Calendar,
-  Eye,
+  // MapPin,
+  // Calendar,
+  // Eye,
 } from "lucide-react";
 import Header from "@/components/header";
 
@@ -310,7 +314,7 @@ export default function DashboardPage() {
           {/* Recent Activity */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Recent Reports */}
-            <Card>
+            {/* <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-semibold">
                   Recent Activity
@@ -445,7 +449,7 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Notifications & Updates */}
             {/* <Card>

@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Chrome, Facebook, Eye, EyeOff } from "lucide-react";
+import { Chrome, Facebook, Eye, EyeOff, Search } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 
@@ -25,18 +25,24 @@ function LoginForm() {
 
   return (
     <>
-      <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="relative min-h-screen flex items-center justify-center p-4">
         {/* Logo Top-Left */}
-        <div
-          className="absolute top-4 lg:left-12 left-4 flex items-center cursor-pointer gap-2"
-          onClick={() => router.push("/")}
-        >
-          <span className="w-8 h-8 md:w-10 md:h-10 bg-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-base md:text-lg">
-            L
-          </span>
-          <span className="hidden md:block text-xl md:text-2xl font-bold text-blue-800">
-            Lorem
-          </span>
+        <div className="flex items-center space-x-6 absolute top-4 left-4">
+          <div className="p-3 bg-blue-600 rounded-lg">
+            <Search
+              className="h-4 w-4 text-white cursor-pointer"
+              onClick={() => router.push("/dashboard")}
+            />
+          </div>
+          <div>
+            <button
+              className="cursor-pointer"
+              onClick={() => router.push("/dashboard")}
+            >
+              <h1 className="text-lg font-bold text-gray-900">Lost & Found</h1>
+              <p className="text-xs text-gray-600">Management System</p>
+            </button>
+          </div>
         </div>
 
         <Card className="w-full max-w-lg shadow-xl">
@@ -53,14 +59,14 @@ function LoginForm() {
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
-                className="w-full hover:bg-blue-50 hover:border-blue-200 bg-white text-black"
+                className="w-full lg:hover:ring-0 lg:hover:border-blue-700 bg-white text-black"
               >
                 <Chrome className="mr-2 h-4 w-4" />
                 Google
               </Button>
               <Button
                 variant="outline"
-                className="w-full hover:bg-blue-50 hover:border-blue-200 bg-white text-black"
+                className="w-full lg:hover:ring-0 lg:hover:border-blue-700 bg-white text-black"
               >
                 <Facebook className="mr-2 h-4 w-4" />
                 Facebook
@@ -73,7 +79,7 @@ function LoginForm() {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-white px-3 text-blue-500 font-medium">
-                  Or continue with email
+                  Or continue with
                 </span>
               </div>
             </div>
@@ -89,7 +95,7 @@ function LoginForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="focus:ring-blue-500 focus:border-blue-500"
+                  className="lg:focus:ring-0 lg:focus:border-blue-700"
                 />
               </div>
 
@@ -103,7 +109,7 @@ function LoginForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="pr-10 focus:ring-blue-500 focus:border-blue-500"
+                    className="pr-10 lg:focus:ring-0 lg:focus:border-blue-700"
                   />
                   <Button
                     type="button"
@@ -124,10 +130,7 @@ function LoginForm() {
               {/* Remember Me and Forgot Password */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remember"
-                    className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                  />
+                  <Checkbox id="remember" className="bg-blue-600" />
                   <Label
                     htmlFor="remember"
                     className="text-sm text-blue-700 cursor-pointer"
