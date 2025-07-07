@@ -99,7 +99,7 @@ export default function DashboardPage() {
         {/* Main Content */}
         <main className="flex-1 p-6 space-y-8 min-h-screen">
           {/* Welcome Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-8 text-white">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-md p-8 text-white">
             <div className="max-w-4xl">
               <h1 className="text-3xl font-bold mb-2">
                 Welcome back, {userName}! 👋
