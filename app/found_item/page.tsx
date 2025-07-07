@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -27,10 +28,9 @@ import {
   Share2,
 } from "lucide-react";
 import Header from "@/components/header";
-import { useRouter } from "next/navigation";
 
-// Mock data for lost items
-const mockLostItems = [
+// Mock data for Found items
+const mockFoundItems = [
   {
     id: 1,
     title: "iPhone 14 Pro Max",
@@ -131,7 +131,7 @@ const mockLostItems = [
   },
 ];
 
-export default function LostItemsPage() {
+export default function FoundItemsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
@@ -152,11 +152,16 @@ export default function LostItemsPage() {
 
   const router = useRouter();
 
-  const ItemCard = ({ item }: { item: (typeof mockLostItems)[0] }) => (
+  const ItemCard = ({ item }: { item: (typeof mockFoundItems)[0] }) => (
     <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm ">
       <CardContent>
         {/* Image Section */}
         <div className="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+          <div className="absolute top-1 left-1">
+            <Badge className="bg-green-100 text-green-500 hover:bg-green-200">
+              Found
+            </Badge>
+          </div>
           {item.images.length > 0 ? (
             <Image
               src={item.images[0] || "/placeholder.svg"}
@@ -173,11 +178,6 @@ export default function LostItemsPage() {
               <Eye className="h-12 w-12" />
             </div>
           )}
-          <div className="absolute top-1 left-1">
-            <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-              Lost
-            </Badge>
-          </div>
           <div className="absolute top-3 right-3 flex space-x-2">
             <Button
               size="sm"
@@ -294,9 +294,9 @@ export default function LostItemsPage() {
         <div className="text-black">
           <div className="max-w-3xl mx-auto px-6">
             <div className="text-center">
-              <h1 className="text-3xl font-bold my-4">Lost Items</h1>
+              <h1 className="text-3xl font-bold my-4">Found Items</h1>
               <p className="text-black text-sm mx-auto">
-                Browse through reported lost items and help reunite them with
+                Browse through reported Found items and help reunite them with
                 their owners. Every item has a story, and you could be part of a
                 happy ending.
               </p>
@@ -304,11 +304,11 @@ export default function LostItemsPage() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                   <div className="flex items-center space-x-6 text-sm">
                     <div className="flex items-center">
-                      <div className="w-3 h-3 bg-red-300 rounded-full mr-2"></div>
-                      <span>{mockLostItems.length} Lost Items</span>
+                      <div className="w-3 h-3 bg-green-300 rounded-full mr-2"></div>
+                      <span>{mockFoundItems.length} Found Items</span>
                     </div>
                     <div className="flex items-center">
-                      <div className="w-3 h-3 bg-green-300 rounded-full mr-2"></div>
+                      <div className="w-3 h-3 bg-green-600 rounded-full mr-2"></div>
                       <span>12 Reunited This Month</span>
                     </div>
                   </div>
@@ -327,7 +327,7 @@ export default function LostItemsPage() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <Input
-                    placeholder="Search lost items by title, description, or location..."
+                    placeholder="Search Found items by title, description, or location..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 pr-4 py-3 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -380,7 +380,7 @@ export default function LostItemsPage() {
             {/* Active Filters */}
             <div className="mt-4 flex items-center space-x-2">
               <span className="text-sm text-gray-500">
-                Showing {mockLostItems.length} results
+                Showing {mockFoundItems.length} results
               </span>
               {selectedCategory !== "all" && (
                 <Badge
@@ -400,7 +400,7 @@ export default function LostItemsPage() {
         {/* Items Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {mockLostItems.map((item) => (
+            {mockFoundItems.map((item) => (
               <ItemCard key={item.id} item={item} />
             ))}
           </div>
@@ -418,25 +418,24 @@ export default function LostItemsPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Found Something?
+                Lost Something?
               </h2>
               <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                If you think you&apos;ve lost one of these items, please contact
-                the owner directly or report it as a found item to help us match
-                it.
+                If you&apos;ve lost something, please report it and browse
+                through our found items.
               </p>
               <div className="flex justify-center space-x-4">
                 <Button
                   className="bg-blue-600 hover:bg-blue-700"
                   onClick={() => router.push("/report_item")}
                 >
-                  Report Found Item
+                  Report Lost Item
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/found_item")}
+                  onClick={() => router.push("/lost_item")}
                 >
-                  Browse Found Items
+                  Browse Lost Items
                 </Button>
               </div>
             </div>

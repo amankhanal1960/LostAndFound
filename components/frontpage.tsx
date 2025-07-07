@@ -45,7 +45,9 @@ export default function LandingPage() {
           <div className="space-y-4">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
               Reuniting People with Their
-              <span className="text-blue-600 block">Lost Belongings</span>
+              <span className="text-blue-600 block text-7xl font-extrabold">
+                Lost Belongings
+              </span>
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               A comprehensive platform to report, track, and recover lost items.

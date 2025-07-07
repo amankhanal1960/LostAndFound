@@ -26,14 +26,17 @@ import {
   // Eye,
 } from "lucide-react";
 import Header from "@/components/header";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const router = useRouter();
+
   const userName = "John Doe";
 
   const sidebarItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard", active: true },
-    { icon: Plus, label: "Report Lost Item", href: "/report" },
-    { icon: List, label: "All Lost Items", href: "/items" },
+    { icon: Plus, label: "Report Lost Item", href: "/report_item" },
+    { icon: List, label: "All Lost Items", href: "/lost_item" },
     { icon: User, label: "My Reports", href: "/my-reports" },
     { icon: MessageSquare, label: "My Claims", href: "/my-claims" },
     { icon: Settings, label: "Settings", href: "/settings" },
@@ -44,6 +47,7 @@ export default function DashboardPage() {
       <nav className="flex-1 p-4 space-y-2">
         {sidebarItems.map((item) => (
           <Button
+            onClick={() => router.push(item.href)}
             key={item.label}
             variant={item.active ? "default" : "ghost"}
             className={`w-full justify-start ${
@@ -220,6 +224,7 @@ export default function DashboardPage() {
                       <Button
                         size="sm"
                         className="bg-blue-600 hover:bg-blue-700"
+                        onClick={() => router.push("/report_item")}
                       >
                         Report Now
                       </Button>
@@ -247,6 +252,7 @@ export default function DashboardPage() {
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700"
+                        onClick={() => router.push("/found_item")}
                       >
                         Browse Items
                       </Button>
@@ -264,16 +270,17 @@ export default function DashboardPage() {
                     <div className="flex-1 space-y-3">
                       <div>
                         <h3 className="font-semibold text-gray-900">
-                          View All Reports
+                          View Lost Items
                         </h3>
                         <p className="text-sm text-gray-600 mt-1">
-                          See all lost and found reports in your area and help
-                          reunite items with owners.
+                          See all lost reports in your area and help reunite
+                          items with owners.
                         </p>
                       </div>
                       <Button
                         size="sm"
                         className="bg-blue-600 hover:bg-blue-700"
+                        onClick={() => router.push("/lost_item")}
                       >
                         View All
                       </Button>
