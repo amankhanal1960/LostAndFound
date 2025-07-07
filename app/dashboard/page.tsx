@@ -35,8 +35,8 @@ export default function DashboardPage() {
 
   const sidebarItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard", active: true },
-    { icon: Plus, label: "Report Lost Item", href: "/report_item" },
-    { icon: List, label: "All Lost Items", href: "/lost_item" },
+    { icon: Plus, label: "Report Lost Item", href: "/report-item" },
+    { icon: List, label: "All Lost Items", href: "/lost-item" },
     { icon: User, label: "My Reports", href: "/my-reports" },
     { icon: MessageSquare, label: "My Claims", href: "/my-claims" },
     { icon: Settings, label: "Settings", href: "/settings" },
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                       <Button
                         size="sm"
                         className="bg-blue-600 hover:bg-blue-700"
-                        onClick={() => router.push("/report_item")}
+                        onClick={() => router.push("/report-item")}
                       >
                         Report Now
                       </Button>
@@ -252,7 +252,7 @@ export default function DashboardPage() {
                       <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700"
-                        onClick={() => router.push("/found_item")}
+                        onClick={() => router.push("/found-item")}
                       >
                         Browse Items
                       </Button>
@@ -280,7 +280,7 @@ export default function DashboardPage() {
                       <Button
                         size="sm"
                         className="bg-blue-600 hover:bg-blue-700"
-                        onClick={() => router.push("/lost_item")}
+                        onClick={() => router.push("/lost-item")}
                       >
                         View All
                       </Button>

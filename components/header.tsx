@@ -38,6 +38,7 @@ export default function Header() {
       <nav className="flex-1 p-4 space-y-2">
         {sidebarItems.map((item) => (
           <Button
+            onClick={() => router.push(item.href)}
             key={item.label}
             variant={item.active ? "default" : "ghost"}
             className={`w-full justify-start ${
@@ -75,8 +76,8 @@ export default function Header() {
 
   const sidebarItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard", active: true },
-    { icon: Plus, label: "Report Lost Item", href: "/report" },
-    { icon: List, label: "All Lost Items", href: "/items" },
+    { icon: Plus, label: "Report Lost Item", href: "/report-item" },
+    { icon: List, label: "All Lost Items", href: "/lost-item" },
     { icon: User, label: "My Reports", href: "/my-reports" },
     { icon: MessageSquare, label: "My Claims", href: "/my-claims" },
     { icon: Settings, label: "Settings", href: "/settings" },
@@ -150,8 +151,13 @@ export default function Header() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
+                  <button
+                    className="flex"
+                    onClick={() => router.push("/profile")}
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </button>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />

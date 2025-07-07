@@ -427,13 +427,13 @@ export default function FoundItemsPage() {
               <div className="flex justify-center space-x-4">
                 <Button
                   className="bg-blue-600 hover:bg-blue-700"
-                  onClick={() => router.push("/report_item")}
+                  onClick={() => router.push("/report-item")}
                 >
                   Report Lost Item
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/lost_item")}
+                  onClick={() => router.push("/lost-item")}
                 >
                   Browse Lost Items
                 </Button>
