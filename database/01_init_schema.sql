@@ -54,3 +54,6 @@ CREATE INDEX idx_items_status ON items(status);
 CREATE INDEX idx_items_type   ON items(type);
 CREATE INDEX idx_claims_status ON claims(status);
 CREATE INDEX idx_messages_claim ON messages(claimid);
+
+
+SELECT * FROM users;

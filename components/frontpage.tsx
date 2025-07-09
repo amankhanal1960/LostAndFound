@@ -3,8 +3,24 @@
 import { Button } from "@/components/ui/button";
 import { Search, MapPin, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function LandingPage() {
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await fetch("/api/users");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        console.log("Users:", data.users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    }
+    fetchUsers();
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
