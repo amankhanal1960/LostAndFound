@@ -22,6 +22,9 @@ import Link from "next/link";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [error, seterror] = useState<string | null>(null);
   //creates a form object in state, with three fields
   const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -33,6 +36,8 @@ export default function LoginForm() {
   async function onSubmit(e: React.FormEvent) {
     //stops the browser from reloading on form submit
     e.preventDefault();
+    setIsSubmitting(true);
+
     //clears any previous errors
     seterror(null);
 
@@ -59,6 +64,7 @@ export default function LoginForm() {
     } else {
       enqueueSnackbar("Login Successful! ", { variant: "success" });
       router.push("/dashboard"); // Redirect after successful login
+      setIsSubmitting(false);
     }
   }
 
@@ -196,8 +202,9 @@ export default function LoginForm() {
               <Button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                disabled={isSubmitting}
               >
-                Sign In
+                {isSubmitting ? "Signing In..." : "Sign In"}
               </Button>
               {error && (
                 <p className="flex text-red-600 text-sm justify-center">

@@ -22,6 +22,9 @@ export default function SignupForm() {
   const { enqueueSnackbar } = useSnackbar();
 
   const router = useRouter();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +34,7 @@ export default function SignupForm() {
   async function onSubmit(e: React.FormEvent) {
     //prevent default prevents the default reload of page on form submit
     e.preventDefault();
+    setIsSubmitting(true);
     setError(null);
 
     //sends an http post request to the /api/users API route (the signup backend handler)
@@ -48,11 +52,14 @@ export default function SignupForm() {
       //reads the error message returned by the server and updates the error state so you ca ndisplay the message in the UI
       setError(data.message);
       enqueueSnackbar("Signup failed!", { variant: "error" });
+      setIsSubmitting(false);
+
       return;
     }
 
     enqueueSnackbar("Signup successful! ", { variant: "success" });
     router.push("/auth/login");
+    setIsSubmitting(false);
   }
 
   return (
@@ -181,9 +188,10 @@ export default function SignupForm() {
 
             <Button
               type="submit"
+              disabled={isSubmitting}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
             >
-              Create account
+              {isSubmitting ? "Creating Account..." : "Create Account"}
             </Button>
 
             {error && (
