@@ -32,6 +32,7 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export default function Header() {
   const SidebarContent = () => (
@@ -85,9 +86,25 @@ export default function Header() {
   ];
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const userName = "John Doe";
-
   const router = useRouter();
+
+  //session will be your full NextAuth session object (or undefined if not signed in)
+  //status is one of loading, authenticated or unauthenticated
+  const { data: session, status } = useSession();
+
+  // If NextAuth is still fetching the session ("loading"), you bail out and render nothing (avoids flashes of wrong UI).
+  if (status === "loading" || !session) {
+    return null;
+  }
+
+  //Now that you know session exists, you grab its .user field, which holds { name, email, image, id }.
+  const user = session?.user;
+  //Provide safe defaults
+  //The ?. is optional chaining. It means “if user is non‑null/undefined, read its .name property; otherwise return undefined without throwing an error.”
+  //The ?? is the nullish coalescing operator. It returns the thing on its left if it’s neither null nor undefined; otherwise it returns the thing on its right.
+  const userName = user?.name ?? "Guest";
+  const userEmail = user?.email ?? "";
+  const userImage = user?.image ?? "/placeholder.svg?height=32&width=32";
 
   return (
     <div>
@@ -129,7 +146,7 @@ export default function Header() {
                   className="relative h-8 w-8 rounded-full"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg?height=32&width=32" />
+                    <AvatarImage src={userImage} />
                     <AvatarFallback className="bg-blue-600 text-white">
                       {userName
                         .split(" ")
@@ -146,7 +163,7 @@ export default function Header() {
                       {userName}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      john@example.com
+                      {userEmail}
                     </p>
                   </div>
                 </DropdownMenuLabel>

@@ -1,14 +1,8 @@
 "use client";
 
-// import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  //  CardHeader, CardTitle
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import { Badge } from "@/components/ui/badge";
 
 import {
   Search,
@@ -20,18 +14,23 @@ import {
   MessageSquare,
   TrendingUp,
   Users,
-  // Clock,
-  // MapPin,
-  // Calendar,
-  // Eye,
 } from "lucide-react";
 import Header from "@/components/header";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function DashboardPage() {
   const router = useRouter();
 
-  const userName = "John Doe";
+  const { data: session, status } = useSession();
+  if (status === "loading" || !session) {
+    return null;
+  }
+
+  const user = session?.user;
+
+  const userName = user?.name ?? "Guest";
+  const userImage = user?.image ?? "/placeholder.svg?height=32&width=32";
 
   const sidebarItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard", active: true },
@@ -64,7 +63,7 @@ export default function DashboardPage() {
       <div className="p-4 border-t">
         <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder.svg?height=32&width=32" />
+            <AvatarImage src={userImage} />
             <AvatarFallback className="bg-blue-600 text-white text-sm">
               {userName
                 .split(" ")
@@ -101,8 +100,9 @@ export default function DashboardPage() {
           {/* Welcome Section */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-md p-8 text-white">
             <div className="max-w-4xl">
-              <h1 className="text-3xl font-bold mb-2">
-                Welcome back, {userName}! 👋
+              <h1 className="text-3xl font-semibold mb-2">
+                Welcome back,{" "}
+                <span className="font-extrabold">{userName}!</span> 👋
               </h1>
               <p className="text-blue-100 text-[15px]">
                 Ready to help reunite lost items with their owners? Check your
@@ -316,201 +316,6 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Recent Reports */}
-            {/* <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg font-semibold">
-                  Recent Activity
-                </CardTitle>
-                <Button variant="outline" size="sm">
-                  View All
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex space-x-4">
-                      <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
-                        <Image
-                          width={64}
-                          height={64}
-                          src="/placeholder.svg?height=64&width=64"
-                          alt="iPhone 14 Pro"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-start justify-between">
-                          <h3 className="font-medium text-gray-900 truncate">
-                            iPhone 14 Pro
-                          </h3>
-                          <Badge className="ml-2 bg-red-100 text-red-800">
-                            Lost
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          Black iPhone 14 Pro with blue case, lost near Central
-                          Park
-                        </p>
-                        <div className="flex items-center space-x-4 text-xs text-gray-500">
-                          <div className="flex items-center">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            Central Park, NYC
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1" />2 days ago
-                          </div>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full mt-2 bg-transparent"
-                        >
-                          View Details
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex space-x-4">
-                      <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center text-gray-400">
-                        <Eye className="h-6 w-6" />
-                      </div>
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-start justify-between">
-                          <h3 className="font-medium text-gray-900 truncate">
-                            Brown Leather Wallet
-                          </h3>
-                          <Badge className="ml-2 bg-green-100 text-green-800">
-                            Found
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          Contains ID and credit cards, found at coffee shop
-                        </p>
-                        <div className="flex items-center space-x-4 text-xs text-gray-500">
-                          <div className="flex items-center">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            Starbucks, 5th Ave
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1" />1 day ago
-                          </div>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full mt-2 bg-transparent"
-                        >
-                          View Details
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex space-x-4">
-                      <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center text-gray-400">
-                        <Eye className="h-6 w-6" />
-                      </div>
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-start justify-between">
-                          <h3 className="font-medium text-gray-900 truncate">
-                            Blue Backpack
-                          </h3>
-                          <Badge className="ml-2 bg-blue-100 text-blue-800">
-                            Claimed
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          Nike backpack with laptop inside, successfully
-                          returned to owner
-                        </p>
-                        <div className="flex items-center space-x-4 text-xs text-gray-500">
-                          <div className="flex items-center">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            University Campus
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1" />3 days ago
-                          </div>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full mt-2 bg-transparent"
-                        >
-                          View Details
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </Card> */}
-
-            {/* Notifications & Updates */}
-            {/* <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">
-                  Notifications & Updates
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        New match found!
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        Someone reported finding an item similar to your lost
-                        iPhone
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">2 hours ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
-                    <div className="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Item claimed successfully
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        Your brown wallet has been returned to its owner
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">1 day ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg">
-                    <div className="w-2 h-2 bg-yellow-600 rounded-full mt-2"></div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Verification required
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        Please verify your identity to claim the found backpack
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">3 days ago</p>
-                    </div>
-                  </div>
-                </div>
-                <Button variant="outline" className="w-full bg-transparent">
-                  <Clock className="mr-2 h-4 w-4" />
-                  View All Notifications
-                </Button>
-              </CardContent>
-            </Card> */}
           </div>
         </main>
       </div>

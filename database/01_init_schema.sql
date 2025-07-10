@@ -1,5 +1,6 @@
 -- 01_init_schema.sql (PostgreSQL dialect)
 
+
 -- Users Table
 CREATE TABLE users (
   userid        SERIAL       PRIMARY KEY,

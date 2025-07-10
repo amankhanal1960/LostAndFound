@@ -3,27 +3,20 @@
 import { Button } from "@/components/ui/button";
 import { Search, MapPin, CheckCircle } from "lucide-react";
 import Link from "next/link";
-// import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 export default function LandingPage() {
-  // useEffect(() => {
-  //   async function fetchUsers() {
-  //     try {
-  //       const response = await fetch("/api/users");
-  //       if (!response.ok) {
-  //         throw new Error("Network response was not ok");
-  //       }
-  //       const data = await response.json();
-  //       console.log("Users:", data.users);
-  //     } catch (error) {
-  //       console.error("Error fetching users:", error);
-  //     }
-  //   }
-  //   fetchUsers();
-  // }, []);
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return null;
+  }
+
+  //if the user is loggedin then there will be session
+  const isLoggedIn = Boolean(session?.user);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-indigo-100">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
@@ -38,17 +31,17 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center space-x-3">
-            <Link href="/auth/register">
+            <Link href="/auth/login">
               <Button
                 variant="ghost"
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 hover:text-gray-900 cursor-pointer"
               >
                 Sign In
               </Button>
             </Link>
 
-            <Link href="/auth/login">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Link href="/auth/register">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
                 Sign Up
               </Button>
             </Link>
@@ -73,19 +66,36 @@ export default function LandingPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
-            <Button
-              size="lg"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-sm"
-            >
-              Get Started - Sign Up
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 text-sm bg-transparent"
-            >
-              Already have an account? Sign In
-            </Button>
+            {!isLoggedIn ? (
+              <>
+                <Link href="/auth/register">
+                  <Button
+                    size="lg"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-sm"
+                  >
+                    Get Started – Sign Up
+                  </Button>
+                </Link>
+                <Link href="/auth/login">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 text-sm bg-transparent"
+                  >
+                    Already have an account? Sign In
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <Link href="/dashboard">
+                <Button
+                  size="lg"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+                >
+                  Go to Dashboard
+                </Button>
+              </Link>
+            )}
           </div>
 
           <div className="pt-8">
@@ -104,7 +114,8 @@ export default function LandingPage() {
                       descriptions
                     </p>
                   </div>
-                  <div className="text-center space-y-2">
+
+                  <div className="text-center space-y-2 border-l border-gray-300 pl-3">
                     <div className="w-8 h-8  bg-green-100 rounded-full flex items-center justify-center mx-auto">
                       <MapPin className="h-4 w-4 text-green-600" />
                     </div>
@@ -115,7 +126,8 @@ export default function LandingPage() {
                       Search through found items and track your reports
                     </p>
                   </div>
-                  <div className="text-center space-y-2">
+
+                  <div className="text-center space-y-2 border-l border-gray-300 pl-3">
                     <div className="w-8 h-8  bg-purple-100 rounded-full flex items-center justify-center mx-auto">
                       <CheckCircle className="h-4 w-4 text-purple-600" />
                     </div>
