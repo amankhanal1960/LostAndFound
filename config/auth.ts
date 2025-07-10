@@ -29,7 +29,7 @@ export const authOptions: NextAuthOptions = {
         //This runs a SQL query against your Postgres users table, searching for a row whose email matches the Google account’s email.
         // findRes.rows will be an array of matches
         const findRes = await query(
-          `SELECT userid, username, email, image
+          `SELECT userid, fullname, email, image
              FROM users
             WHERE email = $1
             LIMIT 1`,
@@ -42,7 +42,7 @@ export const authOptions: NextAuthOptions = {
           const user = findRes.rows[0];
           return {
             id: user.userid.toString(),
-            name: user.username,
+            name: user.fullname,
             email: user.email,
             image: user.image,
           };
@@ -52,9 +52,9 @@ export const authOptions: NextAuthOptions = {
         //creates a new row in the users table with the username, email, and image from the Google profile.
         //$1, $2,$3 are the parameter place holder, filled by the array you passed
         const insertRes = await query(
-          `INSERT INTO users (username, email, image, oauth_provider)
+          `INSERT INTO users (fullname, email, image, oauth_provider)
            VALUES ($1, $2, $3, 'google')
-           RETURNING userid, username, email, image`,
+           RETURNING userid, fullname, email, image`,
           [profile.name, profile.email, profile.picture]
         );
         //grab the inserted new row
@@ -64,7 +64,7 @@ export const authOptions: NextAuthOptions = {
 
         return {
           id: user.userid.toString(),
-          name: user.username,
+          name: user.fullname,
           email: user.email,
           image: user.image,
         };
@@ -84,7 +84,7 @@ export const authOptions: NextAuthOptions = {
 
         //fetch the users hashed password and other information from the postgres
         const res = await query(
-          `SELECT userid, username, email, passwordhash
+          `SELECT userid, fullname, email, passwordhash
              FROM users
             WHERE email = $1
             LIMIT 1`,
@@ -104,7 +104,7 @@ export const authOptions: NextAuthOptions = {
         //finally returns the users data after valid login
         return {
           id: user.userid.toString(),
-          name: user.username,
+          name: user.fullname,
           email: user.email,
         };
       },
@@ -114,7 +114,7 @@ export const authOptions: NextAuthOptions = {
   //override NextAuth's built-in UI routes with your own.
   //signIn tells nextauth to send to /login when they need to sign in, instead its default api/auth/signin page
   pages: {
-    signIn: "/login",
+    signIn: "/auth/login",
   },
 
   callbacks: {

@@ -7,6 +7,7 @@ export async function POST(request: NextRequest) {
     // 1) Parse and validate input
     const body = await request.json();
     const { name, email, password } = body;
+    const normalizedEmail = email.toLowerCase();
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     // 2) checking for exiting user
     //$1 is the placeholder for the parameter
     const existing = await query("SELECT userid FROM users WHERE email = $1", [
-      email,
+      normalizedEmail,
     ]);
 
     // if the query returned one or more rows then the user already exists so you send a 409 conflict response
@@ -39,10 +40,10 @@ export async function POST(request: NextRequest) {
 
     // 4) Insert new user
     const newUser = await query(
-      `INSERT INTO users (username, passwordhash, email) 
-       VALUES ($1, $2, $3) 
-       RETURNING userid, username, email, createdat`, // Fixed column names
-      [name, passwordHash, email]
+      `INSERT INTO users (fullname, passwordhash, email, oauth_provider) 
+       VALUES ($1, $2, $3, 'credentials') 
+       RETURNING userid, fullname, email, createdat`, // Fixed column names
+      [name, passwordHash, normalizedEmail]
     );
 
     // 5) Return the HTTP response back to the client
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
     console.error("Database error", error);
 
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: "Something went wrong." },
       { status: 500 }
     );
   }
