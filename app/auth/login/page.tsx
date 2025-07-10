@@ -60,6 +60,8 @@ export default function LoginForm() {
     if (result?.error) {
       seterror("Invalid email or password");
       enqueueSnackbar("Login Failed!", { variant: "error" });
+      setIsSubmitting(false);
+
       return;
     } else {
       enqueueSnackbar("Login Successful! ", { variant: "success" });

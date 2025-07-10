@@ -1,25 +1,23 @@
 // middleware.ts
 import { withAuth } from "next-auth/middleware";
 
-export default withAuth(
-  // Optional: you can inspect the request here if needed.
-  () => {},
-  {
-    callbacks: {
-      // Only allow if a valid NextAuth JWT/session token exists
-      authorized: ({ token }) => !!token,
-    },
-  }
-);
+// Wrap withAuth around nothing—just use its built‑in JWT/session check
+export default withAuth(() => {}, {
+  callbacks: {
+    // Only allow onward if we have a valid session token
+    authorized: ({ token }) => !!token,
+  },
+});
 
-// Match everything EXCEPT these paths:
+// Only run the middleware match on paths that should be protected.
+// We exclude:
+// - NextAuth’s own API routes: /api/auth/*
+// - Your public signup endpoint: /api/users
+// - Next.js internals: /_next/*
+// - Favicon
+// - Your login & register pages
 export const config = {
   matcher: [
-    // "/dashboard/:path*",
-    // "/lost-item/:path*",
-    // "/found-item/:path*",
-    // "/report-item/:path*",
-
-    "/((?!api/auth|_next|favicon.ico|auth/login|auth/register|$).*)",
+    "/((?!api/auth|api/users|_next|favicon.ico|auth/login|auth/register).*)",
   ],
 };
