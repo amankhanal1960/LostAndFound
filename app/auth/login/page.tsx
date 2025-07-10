@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signIn } from "next-auth/react";
+import { useSnackbar } from "notistack";
+
 import {
   Card,
   CardContent,
@@ -17,11 +20,47 @@ import { Chrome, Facebook, Eye, EyeOff, Search } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 
-function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, seterror] = useState<string | null>(null);
+  //creates a form object in state, with three fields
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+
   const router = useRouter();
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  async function onSubmit(e: React.FormEvent) {
+    //stops the browser from reloading on form submit
+    e.preventDefault();
+    //clears any previous errors
+    seterror(null);
+
+    if (!form.email || !form.password) {
+      enqueueSnackbar("Please enter both Email and Password.", {
+        variant: "error",
+      });
+      return;
+    }
+
+    //calls nextauths credentials authentication flow
+    const result = await signIn("credentials", {
+      //tells nextauth not to automatically navigate on success or failure
+      redirect: false,
+      //email and password come from your state
+      email: form.email,
+      password: form.password,
+    });
+
+    if (result?.error) {
+      seterror("Invalid email or password");
+      enqueueSnackbar("Login Failed!", { variant: "error" });
+      return;
+    } else {
+      enqueueSnackbar("Login Successful! ", { variant: "success" });
+      router.push("/dashboard"); // Redirect after successful login
+    }
+  }
 
   return (
     <>
@@ -31,14 +70,11 @@ function LoginForm() {
           <div className="p-3 bg-blue-600 rounded-lg">
             <Search
               className="h-4 w-4 text-white cursor-pointer"
-              onClick={() => router.push("/dashboard")}
+              onClick={() => router.push("/")}
             />
           </div>
           <div>
-            <button
-              className="cursor-pointer"
-              onClick={() => router.push("/dashboard")}
-            >
+            <button className="cursor-pointer" onClick={() => router.push("/")}>
               <h1 className="text-lg font-bold text-gray-900">Lost & Found</h1>
               <p className="text-xs text-gray-600">Management System</p>
             </button>
@@ -60,6 +96,7 @@ function LoginForm() {
               <Button
                 variant="outline"
                 className="w-full lg:hover:ring-0 lg:hover:border-blue-700 bg-white text-black"
+                onClick={() => signIn("google")}
               >
                 <Chrome className="mr-2 h-4 w-4" />
                 Google
@@ -72,7 +109,6 @@ function LoginForm() {
                 Facebook
               </Button>
             </div>
-
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full" />
@@ -83,17 +119,22 @@ function LoginForm() {
                 </span>
               </div>
             </div>
-
             {/* Login Form */}
-            <form className="space-y-5">
+            <form className="space-y-5" onSubmit={onSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={form.email}
+                  onChange={(e) =>
+                    //if you remove the ...f ,Your form.name and form.password become undefined, so any inputs bound to those keys will break.
+                    // ...f takes all the existing keys (name, email, password) and copies them into the new object.
+                    // Then you overwrite just email with the latest value.
+
+                    setForm((f) => ({ ...f, email: e.target.value }))
+                  }
                   required
                   className="lg:focus:ring-0 lg:focus:border-blue-700"
                 />
@@ -106,8 +147,13 @@ function LoginForm() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        password: e.target.value,
+                      }))
+                    }
                     required
                     className="pr-10 lg:focus:ring-0 lg:focus:border-blue-700"
                   />
@@ -151,13 +197,15 @@ function LoginForm() {
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
               >
-                <>
-                  {/* <Loader2 className="mr-2 h-4 w-4 animate-spin" /> */}
-                  Sign In
-                </>
+                Sign In
               </Button>
+              {error && (
+                <p className="flex text-red-600 text-sm justify-center">
+                  {" "}
+                  {error}
+                </p>
+              )}
             </form>
-
             {/* Signup Redirect */}
             <div className="text-center text-sm">
               <Link href="/auth/register">
@@ -178,5 +226,3 @@ function LoginForm() {
     </>
   );
 }
-
-export default LoginForm;

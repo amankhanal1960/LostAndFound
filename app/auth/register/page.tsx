@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useSnackbar } from "notistack";
 
 import {
   Card,
@@ -18,6 +19,8 @@ import { Chrome, Facebook, Eye, EyeOff, Search } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 export default function SignupForm() {
+  const { enqueueSnackbar } = useSnackbar();
+
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -39,15 +42,17 @@ export default function SignupForm() {
       //serializes the form object to the json string
       body: JSON.stringify(form),
     });
+    const data = await res.json();
 
     if (!res.ok) {
       //reads the error message returned by the server and updates the error state so you ca ndisplay the message in the UI
-      const { message } = await res.json();
-      setError(message);
+      setError(data.message);
+      enqueueSnackbar("Signup failed!", { variant: "error" });
       return;
     }
 
-    router.push("/login");
+    enqueueSnackbar("Signup successful! ", { variant: "success" });
+    router.push("/auth/login");
   }
 
   return (
@@ -57,14 +62,11 @@ export default function SignupForm() {
         <div className="p-3 bg-blue-600 rounded-lg">
           <Search
             className="h-4 w-4 text-white cursor-pointer"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push("/")}
           />
         </div>
         <div>
-          <button
-            className="cursor-pointer"
-            onClick={() => router.push("/dashboard")}
-          >
+          <button className="cursor-pointer" onClick={() => router.push("/")}>
             <h1 className="text-lg font-bold text-gray-900">Lost & Found</h1>
             <p className="text-xs text-gray-600">Management System</p>
           </button>

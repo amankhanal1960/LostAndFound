@@ -1,5 +1,7 @@
 "use client";
 import { Geist } from "next/font/google";
+import { SnackbarProvider } from "notistack";
+import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +16,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} antialiased`}>{children}</body>
+      <body className={`${geistSans.variable} antialiased`}>
+        <SessionProvider>
+          <SnackbarProvider maxSnack={5} autoHideDuration={3000}>
+            {children}
+          </SnackbarProvider>
+        </SessionProvider>
+      </body>
     </html>
   );
 }

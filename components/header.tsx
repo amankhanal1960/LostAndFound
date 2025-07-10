@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 export default function Header() {
   const SidebarContent = () => (
@@ -165,7 +166,7 @@ export default function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <button className="flex" onClick={() => router.push("/")}>
+                  <button className="flex" onClick={() => signOut()}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Log out
                   </button>
