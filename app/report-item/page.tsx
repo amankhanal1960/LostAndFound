@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useSnackbar } from "notistack";
 
 import {
   ArrowLeft,
@@ -41,10 +42,14 @@ import {
 import Image from "next/image";
 
 export default function ReportItemPage() {
+  const { enqueueSnackbar } = useSnackbar();
+
   const [reportType, setReportType] = useState<"lost" | "found">("lost");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     title: "",
     category: "",
@@ -73,37 +78,6 @@ export default function ReportItemPage() {
     "Personal Items",
     "Other",
   ];
-
-  //   Takes two arguments
-  // field: the name of the property in your formData state that you want to update (e.g. "title" or "isRewardOffered").
-  // value: the new value to assign (a string for text inputs, or a boolean for checkboxes).
-  // Uses the functional form of setFormData
-  // By passing prev => { … }, you always get the latest snapshot of state.
-  // Spreads the previous state
-  // ...prev makes a shallow copy of everything in formData.
-  // Overwrites only the one field
-  // The computed key [field] will be set to value, leaving all other properties unchanged.
-  const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  // event.target.files is a FileList (not a real array), so we wrap it in Array.from(...)
-  //  to convert it into a JavaScript File[].
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    setFormData((prev) => ({ ...prev, images: [...prev.images, ...files] }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-  };
 
   if (isSubmitted) {
     return (
@@ -240,6 +214,33 @@ export default function ReportItemPage() {
     );
   }
 
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    const res = await fetch("/api/items/report", {
+      method: "POST",
+      headers: { "content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.message);
+      enqueueSnackbar("Report submission failed!", { variant: "error" });
+      setIsSubmitting(false);
+
+      return;
+    }
+
+    enqueueSnackbar("Report submitted successfully!", { variant: "success" });
+    // Reset form state
+    setIsSubmitting(false);
+    setIsSubmitted(true);
+  }
+
   return (
     <div>
       <Header />
@@ -291,7 +292,7 @@ export default function ReportItemPage() {
 
           {/* main form */}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={onSubmit}>
             <Card className="mb-6">
               <CardHeader>
                 <CardTitle className="text-lg"> Items details</CardTitle>
@@ -304,7 +305,9 @@ export default function ReportItemPage() {
                     id="title"
                     placeholder="e.g., iPhone 14 Pro, Blue Backpack, etc."
                     value={formData.title}
-                    onChange={(e) => handleInputChange("title", e.target.value)}
+                    onChange={(e) =>
+                      setFormData((f) => ({ ...f, title: e.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -315,7 +318,7 @@ export default function ReportItemPage() {
                   <Select
                     value={formData.category}
                     onValueChange={(value) =>
-                      handleInputChange("category", value)
+                      setFormData((f) => ({ ...f, category: value }))
                     }
                   >
                     <SelectTrigger>
@@ -339,7 +342,10 @@ export default function ReportItemPage() {
                     placeholder={`Provide detailed description of the ${reportType} item including color, brand, size, distinctive features, etc.`}
                     value={formData.description}
                     onChange={(e) =>
-                      handleInputChange("description", e.target.value)
+                      setFormData((f) => ({
+                        ...f,
+                        description: e.target.value,
+                      }))
                     }
                     rows={4}
                     required
@@ -355,7 +361,9 @@ export default function ReportItemPage() {
                       type="file"
                       multiple
                       accept="image/*"
-                      onChange={handleImageUpload}
+                      onChange={(e) =>
+                        setFormData((f) => ({ ...f, image: e.target.value }))
+                      }
                       className="hidden"
                     />
 
@@ -442,7 +450,7 @@ export default function ReportItemPage() {
                     placeholder="e.g., Central Park, Starbucks on 5th Ave, University Library, etc."
                     value={formData.location}
                     onChange={(e) =>
-                      handleInputChange("location", e.target.value)
+                      setFormData((f) => ({ ...f, location: e.target.value }))
                     }
                     required
                   />
@@ -457,7 +465,7 @@ export default function ReportItemPage() {
                       type="date"
                       value={formData.date}
                       onChange={(e) =>
-                        handleInputChange("date", e.target.value)
+                        setFormData((f) => ({ ...f, date: e.target.value }))
                       }
                       required
                     />
@@ -469,7 +477,7 @@ export default function ReportItemPage() {
                       type="time"
                       value={formData.time}
                       onChange={(e) =>
-                        handleInputChange("time", e.target.value)
+                        setFormData((f) => ({ ...f, time: e.target.value }))
                       }
                     />
                   </div>
@@ -490,7 +498,10 @@ export default function ReportItemPage() {
                       placeholder="Your full name"
                       value={formData.contactName}
                       onChange={(e) =>
-                        handleInputChange("contactName", e.target.value)
+                        setFormData((f) => ({
+                          ...f,
+                          contactName: e.target.value,
+                        }))
                       }
                       required
                     />
@@ -503,7 +514,10 @@ export default function ReportItemPage() {
                       placeholder="your.email@example.com"
                       value={formData.contactEmail}
                       onChange={(e) =>
-                        handleInputChange("contactEmail", e.target.value)
+                        setFormData((f) => ({
+                          ...f,
+                          contactEmail: e.target.value,
+                        }))
                       }
                       required
                     />
@@ -517,7 +531,10 @@ export default function ReportItemPage() {
                     placeholder="(555) 123-4567"
                     value={formData.contactPhone}
                     onChange={(e) =>
-                      handleInputChange("contactPhone", e.target.value)
+                      setFormData((f) => ({
+                        ...f,
+                        contactPhone: e.target.value,
+                      }))
                     }
                   />
                 </div>
@@ -535,7 +552,10 @@ export default function ReportItemPage() {
                       id="reward-offered"
                       checked={formData.isRewardOffered}
                       onCheckedChange={(checked) =>
-                        handleInputChange("isRewardOffered", checked as boolean)
+                        setFormData((f) => ({
+                          ...f,
+                          isRewardOffered: checked as boolean,
+                        }))
                       }
                     />
                     <Label htmlFor="reward-offered">
@@ -550,7 +570,7 @@ export default function ReportItemPage() {
                         placeholder="e.g., $50, $100, etc."
                         value={formData.reward}
                         onChange={(e) =>
-                          handleInputChange("reward", e.target.value)
+                          setFormData((f) => ({ ...f, reward: e.target.value }))
                         }
                       />
                     </div>
@@ -587,6 +607,12 @@ export default function ReportItemPage() {
                 </Button>
               </CardContent>
             </Card>
+            {error && (
+              <p className="flex text-red-600 text-sm justify-center">
+                {" "}
+                {error}
+              </p>
+            )}
           </form>
         </div>
       </div>

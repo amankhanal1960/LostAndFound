@@ -46,6 +46,10 @@ export default function SignupForm() {
       //serializes the form object to the json string
       body: JSON.stringify(form),
     });
+
+    //Read the response body stream.
+    // Parse it as JSON.
+    // Store the parsed JavaScript object in data.
     const data = await res.json();
 
     if (!res.ok) {

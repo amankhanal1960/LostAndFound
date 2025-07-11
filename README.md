@@ -4,12 +4,6 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 
 
 
@@ -19,6 +13,7 @@ psql -U postgres -d lost_and_found -h localhost -W
 
 <!-- dumping the local -->
 
+```bash
 pg_dump \
  --format=custom \
  --no-owner \
@@ -27,7 +22,6 @@ pg_dump \
  --file=lost_and_found.dump
 
 <!-- restore in neon -->
-
 pg_restore \
  --verbose \
  --clean \
@@ -35,3 +29,4 @@ pg_restore \
  --no-privileges \
  --dbname='postgres://neondb_owner:npg_vMZNdIS16QHO@ep-twilight-mountain-adql070a-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require' \
  lost_and_found.dump
+```

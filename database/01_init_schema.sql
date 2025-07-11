@@ -1,6 +1,5 @@
 -- 01_init_schema.sql (PostgreSQL dialect)
 
-
 -- Users Table
 CREATE TABLE users (
   userid        SERIAL       PRIMARY KEY,
@@ -20,6 +19,7 @@ CREATE TABLE items (
   itemid      SERIAL       PRIMARY KEY,
   name        VARCHAR(200) NOT NULL,
   description TEXT,
+  image       TEXT,                             
   type        item_type    NOT NULL,
   reportedby  INT          NOT NULL REFERENCES users(userid) ON DELETE CASCADE,
   reportedat  TIMESTAMPTZ  DEFAULT NOW(),
@@ -51,10 +51,12 @@ CREATE TABLE messages (
 );
 
 -- Indexes for Performance
-CREATE INDEX idx_items_status  ON items(status);
-CREATE INDEX idx_items_type    ON items(type);
-CREATE INDEX idx_claims_status ON claims(status);
+CREATE INDEX idx_items_status   ON items(status);
+CREATE INDEX idx_items_type     ON items(type);
+CREATE INDEX idx_items_location ON items(location);
+CREATE INDEX idx_items_category ON items(category);
+
+CREATE INDEX idx_claims_status  ON claims(status);
 CREATE INDEX idx_messages_claim ON messages(claimid);
 
-
-SELECT * FROM users;
+SELECT * FROM items;

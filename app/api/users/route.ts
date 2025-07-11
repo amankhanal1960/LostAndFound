@@ -1,4 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
+//NextRequest is used to handle incoming requests
+//NextResponse is used to send responses back to the client
 import { query } from "@/lib/db";
 import bcrypt from "bcrypt";
 
