@@ -1,15 +1,27 @@
+// db.ts
 import pkg from "pg";
 const { Pool } = pkg;
 
+const connectionString =
+  process.env.NODE_ENV === "production"
+    ? process.env.DATABASE_POSTGRES_URL // Neon in prod
+    : process.env.POSTGRES_URL; // localhost in dev
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: true }
+      : false,
+  max: 5,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 });
 
 export async function query(text: string, params: unknown[] = []) {
   const client = await pool.connect();
   try {
-    const res = await client.query(text, params);
-    return res;
+    return await client.query(text, params);
   } finally {
     client.release();
   }
