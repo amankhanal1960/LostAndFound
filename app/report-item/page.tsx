@@ -7,14 +7,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useSession } from "next-auth/react";
+
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -23,25 +17,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useSnackbar } from "notistack";
 
-import {
-  ArrowLeft,
-  Upload,
-  MapPin,
-  User,
-  Settings,
-  LogOut,
-  Bell,
-  Search,
-  AlertCircle,
-  CheckCircle,
-} from "lucide-react";
+import { Upload, AlertCircle, CheckCircle } from "lucide-react";
 import Image from "next/image";
 
 export default function ReportItemPage() {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   const { enqueueSnackbar } = useSnackbar();
 
   const [reportType, setReportType] = useState<"lost" | "found">("lost");
@@ -55,17 +39,10 @@ export default function ReportItemPage() {
     category: "",
     description: "",
     location: "",
-    date: "",
-    time: "",
-    contactName: "",
-    contactEmail: "",
-    contactPhone: "",
-    reward: "",
-    isRewardOffered: false,
+    contactnumber: "",
     images: [] as File[],
   });
 
-  const userName = "John Doe";
   const categories = [
     "Electronics",
     "Clothing & Accessories",
@@ -83,85 +60,7 @@ export default function ReportItemPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 z-50 h-16">
-          <div className="flex items-center justify-between h-full">
-            <div className="flex items-center space-x-6">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => window.history.back()}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-              <div className="flex items-center space-x-6">
-                <div className="p-3 bg-blue-600 rounded-lg">
-                  <Search className="h-4 w-4 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold text-gray-900">
-                    Lost & Found
-                  </h1>
-                  <p className="text-xs text-gray-600">Management System</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                  3
-                </span>
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-8 w-8 rounded-full"
-                  >
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                      <AvatarFallback className="bg-blue-600 text-white">
-                        {userName
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {userName}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        john@example.com
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </header>
-
+        <Header />
         {/* Success Message */}
         <div className="pt-16 min-h-screen flex items-center justify-center p-6">
           <Card className="w-full max-w-md text-center">
@@ -185,13 +84,7 @@ export default function ReportItemPage() {
                       category: "",
                       description: "",
                       location: "",
-                      date: "",
-                      time: "",
-                      contactName: "",
-                      contactEmail: "",
-                      contactPhone: "",
-                      reward: "",
-                      isRewardOffered: false,
+                      contactnumber: "",
                       images: [],
                     });
                   }}
@@ -219,10 +112,21 @@ export default function ReportItemPage() {
     setIsSubmitting(true);
     setError(null);
 
+    const payload = {
+      name: formData.title,
+      description: formData.description,
+      image: formData.images[0]?.name ?? null,
+      type: reportType.toUpperCase(),
+      reportedby: user?.id,
+      location: formData.location,
+      category: formData.category,
+      contactnumber: formData.contactnumber || null,
+    };
+
     const res = await fetch("/api/items/report", {
       method: "POST",
       headers: { "content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
@@ -361,9 +265,10 @@ export default function ReportItemPage() {
                       type="file"
                       multiple
                       accept="image/*"
-                      onChange={(e) =>
-                        setFormData((f) => ({ ...f, image: e.target.value }))
-                      }
+                      onChange={(e) => {
+                        const files = Array.from(e.currentTarget.files ?? []);
+                        setFormData((f) => ({ ...f, images: files }));
+                      }}
                       className="hidden"
                     />
 
@@ -428,156 +333,29 @@ export default function ReportItemPage() {
                 </div>
               </CardContent>
             </Card>
-            {/* Location & Time */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <MapPin className="h-5 w-5 mr-2" />
-                  Location & Time
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Location */}
-                <div className="space-y-2">
-                  <Label htmlFor="location">
-                    {reportType === "lost"
-                      ? "Where did you lose it?"
-                      : "Where did you find it?"}{" "}
-                    *
-                  </Label>
-                  <Input
-                    id="location"
-                    placeholder="e.g., Central Park, Starbucks on 5th Ave, University Library, etc."
-                    value={formData.location}
-                    onChange={(e) =>
-                      setFormData((f) => ({ ...f, location: e.target.value }))
-                    }
-                    required
-                  />
-                </div>
-
-                {/* Date and Time */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="date">Date *</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      value={formData.date}
-                      onChange={(e) =>
-                        setFormData((f) => ({ ...f, date: e.target.value }))
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="time">Approximate Time</Label>
-                    <Input
-                      id="time"
-                      type="time"
-                      value={formData.time}
-                      onChange={(e) =>
-                        setFormData((f) => ({ ...f, time: e.target.value }))
-                      }
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
             {/* Contact Information */}
             <Card className="mb-6">
               <CardHeader>
                 <CardTitle className="text-lg">Contact Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="contactName">Full Name *</Label>
-                    <Input
-                      id="contactName"
-                      placeholder="Your full name"
-                      value={formData.contactName}
-                      onChange={(e) =>
-                        setFormData((f) => ({
-                          ...f,
-                          contactName: e.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="contactEmail">Email Address *</Label>
-                    <Input
-                      id="contactEmail"
-                      type="email"
-                      placeholder="your.email@example.com"
-                      value={formData.contactEmail}
-                      onChange={(e) =>
-                        setFormData((f) => ({
-                          ...f,
-                          contactEmail: e.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-                </div>
                 <div className="space-y-2">
-                  <Label htmlFor="contactPhone">Phone Number</Label>
+                  <Label htmlFor="contactnumber">Phone Number</Label>
                   <Input
-                    id="contactPhone"
+                    id="contactnumber"
                     type="tel"
                     placeholder="(555) 123-4567"
-                    value={formData.contactPhone}
+                    value={formData.contactnumber}
                     onChange={(e) =>
                       setFormData((f) => ({
                         ...f,
-                        contactPhone: e.target.value,
+                        contactnumber: e.target.value,
                       }))
                     }
                   />
                 </div>
               </CardContent>
             </Card>
-            {/* Reward Section (only for lost items) */}
-            {reportType === "lost" && (
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="text-lg">Reward (Optional)</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="reward-offered"
-                      checked={formData.isRewardOffered}
-                      onCheckedChange={(checked) =>
-                        setFormData((f) => ({
-                          ...f,
-                          isRewardOffered: checked as boolean,
-                        }))
-                      }
-                    />
-                    <Label htmlFor="reward-offered">
-                      I&apos;m offering a reward for finding this item
-                    </Label>
-                  </div>
-                  {formData.isRewardOffered && (
-                    <div className="space-y-2">
-                      <Label htmlFor="reward">Reward Amount</Label>
-                      <Input
-                        id="reward"
-                        placeholder="e.g., $50, $100, etc."
-                        value={formData.reward}
-                        onChange={(e) =>
-                          setFormData((f) => ({ ...f, reward: e.target.value }))
-                        }
-                      />
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
             {/* Submit Button */}
             <Card>
               <CardContent className="p-6">

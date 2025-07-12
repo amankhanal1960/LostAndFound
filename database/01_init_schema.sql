@@ -1,8 +1,18 @@
 -- 01_init_schema.sql (PostgreSQL dialect)
 
+-- DROP TABLE IF EXISTS messages;
+-- DROP TABLE IF EXISTS claims;
+-- DROP TABLE IF EXISTS items;
+-- DROP TABLE IF EXISTS users;
+
+-- DROP TYPE IF EXISTS claim_status CASCADE;
+-- DROP TYPE IF EXISTS item_status  CASCADE;
+-- DROP TYPE IF EXISTS item_type    CASCADE;
+
 -- Users Table
 CREATE TABLE users (
   userid        SERIAL       PRIMARY KEY,
+  contactnumber VARCHAR(20) UNIQUE,
   fullname      VARCHAR(200)            NOT NULL,
   passwordhash  VARCHAR(255),
   email         VARCHAR(255) UNIQUE     NOT NULL,
@@ -23,6 +33,7 @@ CREATE TABLE items (
   type        item_type    NOT NULL,
   reportedby  INT          NOT NULL REFERENCES users(userid) ON DELETE CASCADE,
   reportedat  TIMESTAMPTZ  DEFAULT NOW(),
+  updatedat TIMESTAMPTZ    DEFAULT NOW(),
   status      item_status  DEFAULT 'OPEN',
   location    VARCHAR(255),
   category    VARCHAR(50)
@@ -59,4 +70,5 @@ CREATE INDEX idx_items_category ON items(category);
 CREATE INDEX idx_claims_status  ON claims(status);
 CREATE INDEX idx_messages_claim ON messages(claimid);
 
+SELECT * FROM users;
 SELECT * FROM items;

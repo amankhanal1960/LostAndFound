@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     reportedby,
     location = null,
     category = null,
+    contactnumber = null, // Optional field for contact number
     //reads the request body and extracts it as JSON
   } = await req.json();
 
@@ -26,6 +27,13 @@ export async function POST(req: NextRequest) {
       { error: "Required: name, reportedBy" },
       { status: 400 }
     );
+  }
+
+  if (contactnumber) {
+    await query(`UPDATE users SET contactnumber = $1 WHERE userid = $2`, [
+      contactnumber,
+      reportedby,
+    ]);
   }
   //This line is using destructuring (which we just talked about) to pull out
   //  the rows property from the object returned by the query() function
