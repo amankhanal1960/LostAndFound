@@ -255,6 +255,22 @@ export default function ReportItemPage() {
                     required
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">location </Label>
+                  <Textarea
+                    id="location"
+                    placeholder={`Provide the location where you found the ${reportType} item `}
+                    value={formData.location}
+                    onChange={(e) =>
+                      setFormData((f) => ({
+                        ...f,
+                        location: e.target.value,
+                      }))
+                    }
+                    rows={4}
+                    required
+                  />
+                </div>
 
                 {/* Images */}
                 <div className="space-y-2">

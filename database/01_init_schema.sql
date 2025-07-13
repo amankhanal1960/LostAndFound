@@ -1,4 +1,3 @@
--- 01_init_schema.sql (PostgreSQL dialect)
 
 -- DROP TABLE IF EXISTS messages;
 -- DROP TABLE IF EXISTS claims;

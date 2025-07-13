@@ -19,19 +19,20 @@ export async function GET(req: NextRequest) {
   // fetch all items of type FOUND
   const { rows } = await query(
     `SELECT
-       itemid,
-       name,
-       description,
-       image,
-       reportedby,
-       reportedat,
-       updatedat,
-       status,
-       location,
-       category
-     FROM items
-     WHERE type = $1
-     ORDER BY reportedat DESC
+       items.itemid,
+       items.name,
+       items.description,
+       items.image,
+       items.reportedby,
+       items.reportedat,
+       items.updatedat,
+       items.status,
+       items.location,
+       items.category, 
+       users.contactnumber
+     FROM items JOIN users on users.userid = items.reportedby
+     WHERE items.type = $1
+     ORDER BY items.reportedat DESC
      LIMIT $2 OFFSET $3`,
     ["FOUND", limit, offset]
   );
