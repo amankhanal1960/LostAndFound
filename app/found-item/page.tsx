@@ -100,7 +100,7 @@ const mockFoundItems = [
     title: "Black Ray-Ban Sunglasses",
     category: "Clothing & Accessories",
     description:
-      "Classic black Ray-Ban Wayfarer sunglasses. Prescription lenses. In a black leather case with cleaning cloth.",
+      "Classic black Ray-Ban Wayfarer sunglasses. Prescription lenses. In a black leather case with cleaning clothClassic black Ray-Ban Wayfarer sunglasses. Prescription lenses. In a black leather case with cleaning cloth.",
     location: "Bryant Park",
     date: "2024-01-11",
     time: "13:00",

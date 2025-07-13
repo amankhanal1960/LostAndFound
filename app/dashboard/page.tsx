@@ -13,7 +13,6 @@ import {
   Settings,
   MessageSquare,
   TrendingUp,
-  Users,
 } from "lucide-react";
 import Header from "@/components/header";
 import { useRouter } from "next/navigation";
@@ -112,7 +111,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -176,7 +175,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            {/* <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="space-y-2">
@@ -196,7 +195,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
 
           {/* Quick Actions */}
@@ -214,11 +213,11 @@ export default function DashboardPage() {
                     <div className="flex-1 space-y-3">
                       <div>
                         <h3 className="font-semibold text-gray-900">
-                          Report Lost Item
+                          Report Item
                         </h3>
                         <p className="text-sm text-gray-600 mt-1">
-                          Lost something? Report it here and let the community
-                          help you find it.
+                          Lost or Found something? Report it here and let the
+                          community know it.
                         </p>
                       </div>
                       <Button
