@@ -168,7 +168,7 @@ export default function FoundItemsPage() {
       <CardContent className="p-0">
         {/* Image Section */}
         <div className="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden rounded-t-lg">
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-1 left-1 z-50">
             <Badge className="bg-green-100 text-green-700 hover:bg-green-200">
               Found
             </Badge>
@@ -531,7 +531,7 @@ export default function FoundItemsPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/lost-items")}
+                  onClick={() => router.push("/lost-item")}
                 >
                   Browse Lost Items
                 </Button>
