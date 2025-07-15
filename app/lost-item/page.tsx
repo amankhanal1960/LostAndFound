@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -13,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import {
   Search,
   Filter,
@@ -25,159 +25,166 @@ import {
   Eye,
   Heart,
   Share2,
+  Loader2,
 } from "lucide-react";
 import Header from "@/components/header";
-import { useRouter } from "next/navigation";
 
-// Mock data for lost items
-const mockLostItems = [
-  {
-    id: 1,
-    title: "iPhone 14 Pro Max",
-    category: "Electronics",
-    description:
-      "Black iPhone 14 Pro Max with a blue MagSafe case. Has a small scratch on the back camera. Contains important work contacts and family photos.",
-    location: "Central Park, near Bethesda Fountain",
-    date: "2024-01-15",
-    time: "14:30",
-    contactName: "Sarah Johnson",
-    contactEmail: "sarah.j@email.com",
-    contactPhone: "(555) 123-4567",
-    images: [],
-    reward: "$200",
-    postedDate: "2 days ago",
-  },
-  {
-    id: 2,
-    title: "Brown Leather Wallet",
-    category: "Personal Items",
-    description:
-      "Brown leather wallet with multiple cards, driver's license, and some cash. Has initials 'M.R.' embossed on the front.",
-    location: "Starbucks on 5th Avenue",
-    date: "2024-01-14",
-    time: "09:15",
-    contactName: "Michael Rodriguez",
-    contactEmail: "m.rodriguez@email.com",
-    contactPhone: "(555) 987-6543",
-    images: [],
-    reward: "$50",
-    postedDate: "3 days ago",
-  },
-  {
-    id: 3,
-    title: "Blue Nike Backpack",
-    category: "Bags & Luggage",
-    description:
-      "Navy blue Nike backpack with white logo. Contains MacBook Pro, charger, and university textbooks. Has a small keychain with a red heart.",
-    location: "Columbia University Library",
-    date: "2024-01-13",
-    time: "16:45",
-    contactName: "Emily Chen",
-    contactEmail: "emily.chen@student.edu",
-    contactPhone: "(555) 456-7890",
-    images: ["https://i.ibb.co/pjLpKFPf/cartoombagpack.jpg"],
-    reward: "",
-    postedDate: "4 days ago",
-  },
-  {
-    id: 4,
-    title: "Gold Wedding Ring",
-    category: "Jewelry & Watches",
-    description:
-      "14k gold wedding band with engraving 'Forever Yours - J&M 2019' on the inside. Very sentimental value.",
-    location: "Washington Square Park",
-    date: "2024-01-12",
-    time: "11:20",
-    contactName: "Jennifer Martinez",
-    contactEmail: "j.martinez@email.com",
-    contactPhone: "(555) 234-5678",
-    images: ["https://i.ibb.co/Kz9m8qF6/61-FS1-m-Dc-L.jpg"],
-    reward: "$500",
-    postedDate: "5 days ago",
-  },
-  {
-    id: 5,
-    title: "Black Ray-Ban Sunglasses",
-    category: "Clothing & Accessories",
-    description:
-      "Classic black Ray-Ban Wayfarer sunglasses. Prescription lenses. In a black leather case with cleaning cloth.",
-    location: "Bryant Park",
-    date: "2024-01-11",
-    time: "13:00",
-    contactName: "David Kim",
-    contactEmail: "david.kim@email.com",
-    contactPhone: "(555) 345-6789",
-    images: [
-      "https://i.ibb.co/d4kr7X1Q/01-1-Sunglasses-Huzzah1600x1600-10.jpg",
-    ],
-    reward: "$100",
-    postedDate: "6 days ago",
-  },
-  {
-    id: 6,
-    title: "Car Keys with Honda Fob",
-    category: "Keys",
-    description:
-      "Honda car key fob with house keys on a blue lanyard. Has a small flashlight and bottle opener keychain attached.",
-    location: "Times Square Subway Station",
-    date: "2024-01-10",
-    time: "08:30",
-    contactName: "Lisa Thompson",
-    contactEmail: "lisa.t@email.com",
-    contactPhone: "(555) 567-8901",
-    images: ["/placeholder.svg?height=200&width=200"],
-    reward: "$75",
-    postedDate: "1 week ago",
-  },
+interface Item {
+  itemid: number;
+  name: string;
+  description: string | null;
+
+  image: string | null;
+  reportedby: number;
+  reporter_name: string;
+  reporter_image: string | null;
+
+  reportedat: string;
+  updatedat: string;
+  status: "OPEN" | "RESOLVED";
+  location: string | null;
+  category: string | null;
+  contactnumber: string | null;
+}
+
+const categories = [
+  "All Categories",
+  "Electronics",
+  "Clothing",
+  "Accessories",
+  "Documents",
+  "Keys",
+  "Bags",
+  "Jewelry",
+  "Sports Equipment",
+  "Books",
+  "Other",
 ];
 
-export default function LostItemsPage() {
+export default function FoundItemsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-
-  const categories = [
-    "All Categories",
-    "Electronics",
-    "Clothing & Accessories",
-    "Bags & Luggage",
-    "Documents & Cards",
-    "Jewelry & Watches",
-    "Keys",
-    "Sports Equipment",
-    "Books & Stationery",
-    "Personal Items",
-    "Other",
-  ];
-
+  const [limit] = useState(10);
+  const [offset, setOffset] = useState(0);
+  const [items, setItems] = useState<Item[]>([]);
+  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
   const router = useRouter();
 
-  const ItemCard = ({ item }: { item: (typeof mockLostItems)[0] }) => (
-    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm ">
-      <CardContent>
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `/api/items/browse/found?limit=${limit}&offset=${offset}`
+        );
+        if (!res.ok) throw new Error("Failed to fetch items");
+        const data = await res.json();
+
+        // Append on load-more, replace on initial load
+        setItems((prev) =>
+          offset === 0 ? data.items : [...prev, ...data.items]
+        );
+
+        // Check if there are more items to load
+        setHasMore(data.items.length === limit);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Unknown error");
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [limit, offset]);
+
+  // Filter and sort items whenever search, category, or sort changes
+  useEffect(() => {
+    let filtered = [...items];
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (item.description &&
+            item.description
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase())) ||
+          (item.location &&
+            item.location.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    // Apply category filter
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter(
+        (item) =>
+          item.category &&
+          item.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return (
+            new Date(b.reportedat).getTime() - new Date(a.reportedat).getTime()
+          );
+        case "oldest":
+          return (
+            new Date(a.reportedat).getTime() - new Date(b.reportedat).getTime()
+          );
+        case "location":
+          return (a.location || "").localeCompare(b.location || "");
+        default:
+          return 0;
+      }
+    });
+
+    setFilteredItems(filtered);
+  }, [items, searchQuery, selectedCategory, sortBy]);
+
+  const loadMore = () => {
+    setOffset((prev) => prev + limit);
+  };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory("all");
+    setSortBy("newest");
+  };
+
+  const ItemCard = ({ item }: { item: Item }) => (
+    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm p-0">
+      <CardContent className="p-0">
         {/* Image Section */}
-        <div className="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-          {item.images.length > 0 ? (
+        <div className="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden rounded-t-lg">
+          <div className="absolute top-3 left-3">
+            <Badge className="bg-green-100 text-green-700 hover:bg-green-200">
+              Found
+            </Badge>
+          </div>
+          {item.image ? (
             <Image
-              src={item.images[0] || "/placeholder.svg"}
-              alt={item.title}
-              layout="responsive"
-              width={1920}
-              height={1080}
-              objectFit="cover"
-              className="object-contain group-hover:scale-105 transition-transform 
-              duration-300 "
+              src={item.image || "/placeholder.svg"}
+              fill
+              alt={item.name}
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">
               <Eye className="h-12 w-12" />
             </div>
           )}
-          <div className="absolute top-1 left-1">
-            <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-              Lost
-            </Badge>
-          </div>
           <div className="absolute top-3 right-3 flex space-x-2">
             <Button
               size="sm"
@@ -194,13 +201,6 @@ export default function LostItemsPage() {
               <Share2 className="h-4 w-4" />
             </Button>
           </div>
-          {item.reward && (
-            <div className="absolute bottom-3 left-3">
-              <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-                Reward: {item.reward}
-              </Badge>
-            </div>
-          )}
         </div>
 
         {/* Content Section */}
@@ -209,52 +209,66 @@ export default function LostItemsPage() {
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1">
               <h3 className="font-semibold text-lg text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
-                {item.title}
+                {item.name}
               </h3>
-              <Badge variant="outline" className="text-xs">
-                {item.category}
-              </Badge>
+              {item.category && (
+                <Badge variant="outline" className="text-xs">
+                  {item.category}
+                </Badge>
+              )}
             </div>
           </div>
 
           {/* Description */}
-          <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
-            {item.description}
-          </p>
+          {item.description && (
+            <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
+              {item.description}
+            </p>
+          )}
 
           {/* Location & Date */}
           <div className="space-y-2 mb-4">
-            <div className="flex items-center text-sm text-gray-500">
-              <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-              <span className="truncate">{item.location}</span>
-            </div>
+            {item.location && (
+              <div className="flex items-center text-sm text-gray-500">
+                <MapPin className="h-4 w-4 mr-2 text-gray-400" />
+                <span className="truncate">{item.location}</span>
+              </div>
+            )}
             <div className="flex items-center space-x-4 text-sm text-gray-500">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                <span>{new Date(item.date).toLocaleDateString()}</span>
+                <span>{new Date(item.reportedat).toLocaleDateString()}</span>
               </div>
-              {item.time && (
-                <div className="flex items-center">
-                  <Clock className="h-4 w-4 mr-1 text-gray-400" />
-                  <span>{item.time}</span>
-                </div>
-              )}
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 mr-1 text-gray-400" />
+                <span>{new Date(item.reportedat).toLocaleTimeString()}</span>
+              </div>
             </div>
           </div>
 
           {/* Contact Info */}
           <div className="border-t pt-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <User className="h-4 w-4 text-blue-600" />
-                </div>
+              <div className="flex items-center space-x-2">
+                {item.reporter_image ? (
+                  <Image
+                    src={item.reporter_image}
+                    alt={item.reporter_name}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <User className="h-4 w-4 text-blue-600" />
+                  </div>
+                )}
                 <div>
                   <p className="font-medium text-sm text-gray-900">
-                    {item.contactName}
+                    {item.reporter_name}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Posted {item.postedDate}
+                    Posted {new Date(item.reportedat).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -262,17 +276,20 @@ export default function LostItemsPage() {
 
             {/* Contact Actions */}
             <div className="flex space-x-2">
-              <Button
-                size="sm"
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
-              >
-                <Mail className="h-4 w-4 mr-2" />
-                Contact
-              </Button>
+              {item.contactnumber && (
+                <Button
+                  size="sm"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Contact
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant="outline"
                 className="flex-1 bg-transparent"
+                onClick={() => router.push(`/items/${item.itemid}`)}
               >
                 <Eye className="h-4 w-4 mr-2" />
                 View Details
@@ -284,10 +301,25 @@ export default function LostItemsPage() {
     </Card>
   );
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Error Loading Items
+          </h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <Header />
+
       {/* Main Content */}
       <div className="pt-16">
         {/* Page Header */}
@@ -296,7 +328,7 @@ export default function LostItemsPage() {
             <div className="text-center">
               <h1 className="text-3xl font-bold my-4">Lost Items</h1>
               <p className="text-black text-sm mx-auto">
-                Browse through reported lost items and help reunite them with
+                Browse through reported found items and help reunite them with
                 their owners. Every item has a story, and you could be part of a
                 happy ending.
               </p>
@@ -304,11 +336,11 @@ export default function LostItemsPage() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                   <div className="flex items-center space-x-6 text-sm">
                     <div className="flex items-center">
-                      <div className="w-3 h-3 bg-red-300 rounded-full mr-2"></div>
-                      <span>{mockLostItems.length} Lost Items</span>
+                      <div className="w-3 h-3 bg-green-300 rounded-full mr-2"></div>
+                      <span>{items.length} Lost Items</span>
                     </div>
                     <div className="flex items-center">
-                      <div className="w-3 h-3 bg-green-300 rounded-full mr-2"></div>
+                      <div className="w-3 h-3 bg-green-600 rounded-full mr-2"></div>
                       <span>12 Reunited This Month</span>
                     </div>
                   </div>
@@ -327,7 +359,7 @@ export default function LostItemsPage() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <Input
-                    placeholder="Search lost items by title, description, or location..."
+                    placeholder="Search found items by title, description, or location..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 pr-4 py-3 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -343,7 +375,6 @@ export default function LostItemsPage() {
                     Filter by:
                   </span>
                 </div>
-
                 <Select
                   value={selectedCategory}
                   onValueChange={setSelectedCategory}
@@ -352,17 +383,14 @@ export default function LostItemsPage() {
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem
-                        key={category}
-                        value={category.toLowerCase().replace(" ", "-")}
-                      >
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {categories.slice(1).map((category) => (
+                      <SelectItem key={category} value={category.toLowerCase()}>
                         {category}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-40">
                     <SelectValue placeholder="Sort by" />
@@ -371,27 +399,59 @@ export default function LostItemsPage() {
                     <SelectItem value="newest">Newest First</SelectItem>
                     <SelectItem value="oldest">Oldest First</SelectItem>
                     <SelectItem value="location">By Location</SelectItem>
-                    <SelectItem value="reward">Highest Reward</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             {/* Active Filters */}
-            <div className="mt-4 flex items-center space-x-2">
-              <span className="text-sm text-gray-500">
-                Showing {mockLostItems.length} results
-              </span>
-              {selectedCategory !== "all" && (
-                <Badge
-                  variant="secondary"
-                  className="flex items-center space-x-1"
+            <div className="mt-4 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500">
+                  Showing {filteredItems.length} results
+                </span>
+                {(selectedCategory !== "all" || searchQuery.trim()) && (
+                  <div className="flex items-center space-x-2">
+                    {selectedCategory !== "all" && (
+                      <Badge
+                        variant="secondary"
+                        className="flex items-center space-x-1"
+                      >
+                        <span>Category: {selectedCategory}</span>
+                        <button
+                          className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                          onClick={() => setSelectedCategory("all")}
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {searchQuery.trim() && (
+                      <Badge
+                        variant="secondary"
+                        className="flex items-center space-x-1"
+                      >
+                        <span>Search: {searchQuery}</span>
+                        <button
+                          className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                          onClick={() => setSearchQuery("")}
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                  </div>
+                )}
+              </div>
+              {(selectedCategory !== "all" || searchQuery.trim()) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="text-blue-600 hover:text-blue-700"
                 >
-                  <span>Category: Electronics</span>
-                  <button className="ml-1 hover:bg-gray-300 rounded-full p-0.5">
-                    ×
-                  </button>
-                </Badge>
+                  Clear all filters
+                </Button>
               )}
             </div>
           </div>
@@ -399,18 +459,56 @@ export default function LostItemsPage() {
 
         {/* Items Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {mockLostItems.map((item) => (
-              <ItemCard key={item.id} item={item} />
-            ))}
-          </div>
+          {loading && offset === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              <span className="ml-2 text-gray-600">Loading items...</span>
+            </div>
+          ) : filteredItems.length === 0 ? (
+            <div className="text-center py-12">
+              <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No items Lost
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Try adjusting your search criteria or check back later for new
+                items.
+              </p>
+              <Button onClick={clearFilters} variant="outline">
+                Clear filters
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredItems.map((item) => (
+                  <ItemCard key={item.itemid} item={item} />
+                ))}
+              </div>
 
-          {/* Load More */}
-          <div className="mt-12 text-center">
-            <Button variant="outline" size="lg" className="px-8 bg-transparent">
-              Load More Items
-            </Button>
-          </div>
+              {/* Load More */}
+              {hasMore && (
+                <div className="mt-12 text-center">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="px-8 bg-transparent"
+                    onClick={loadMore}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Loading...
+                      </>
+                    ) : (
+                      "Load More Items"
+                    )}
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         {/* Help Section */}
@@ -421,20 +519,19 @@ export default function LostItemsPage() {
                 Found Something?
               </h2>
               <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                If you think you&apos;ve lost one of these items, please contact
-                the owner directly or report it as a found item to help us match
-                it.
+                If you&apos;ve found something, please report so that the owner
+                can connect to their lost item.
               </p>
               <div className="flex justify-center space-x-4">
                 <Button
                   className="bg-blue-600 hover:bg-blue-700"
-                  onClick={() => router.push("/report_item")}
+                  onClick={() => router.push("/report-item")}
                 >
                   Report Found Item
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/found_item")}
+                  onClick={() => router.push("/found-items")}
                 >
                   Browse Found Items
                 </Button>

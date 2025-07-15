@@ -1,7 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+// const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 /**
@@ -27,17 +28,25 @@ export const uploadFile = async (
       .from(bucket)
       .upload(filePath, file, { cacheControl: "3600", upsert: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase upload error:", error);
+      throw new Error(`Upload failed: ${error.message}`);
+    }
 
-    const { publicUrl } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filePath).data;
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from(bucket).getPublicUrl(filePath);
 
     if (!publicUrl) throw new Error("Failed to retrieve public URL");
 
     return { path: filePath, publicUrl };
-  } catch (error) {
-    console.error("Upload error:", error);
-    throw new Error("Failed to upload file. Please try again.");
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error("Supabase upload failed:", err);
+      throw err;
+    } else {
+      console.error("Supabase upload failed:", err);
+      throw new Error("An unknown error occurred during upload.");
+    }
   }
 };

@@ -29,14 +29,12 @@ export async function GET(req: NextRequest) {
        items.status,
        items.location,
        items.category, 
-       users.contactnumber,
-       users.fullname         AS reporter_name,
-       users.image            AS reporter_image
+       users.contactnumber
      FROM items JOIN users on users.userid = items.reportedby
      WHERE items.type = $1
      ORDER BY items.reportedat DESC
      LIMIT $2 OFFSET $3`,
-    ["FOUND", limit, offset]
+    ["LOST", limit, offset]
   );
 
   //sends the json request back to the client with the rows that we have selected

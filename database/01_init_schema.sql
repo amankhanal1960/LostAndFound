@@ -71,3 +71,5 @@ CREATE INDEX idx_messages_claim ON messages(claimid);
 
 SELECT * FROM users;
 SELECT * FROM items;
+
+-- DELETE FROM items;

@@ -33,8 +33,12 @@ interface Item {
   itemid: number;
   name: string;
   description: string | null;
+
   image: string | null;
   reportedby: number;
+  reporter_name: string;
+  reporter_image: string | null;
+
   reportedat: string;
   updatedat: string;
   status: "OPEN" | "RESOLVED";
@@ -160,7 +164,7 @@ export default function FoundItemsPage() {
   };
 
   const ItemCard = ({ item }: { item: Item }) => (
-    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm">
+    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm p-0">
       <CardContent className="p-0">
         {/* Image Section */}
         <div className="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden rounded-t-lg">
@@ -172,8 +176,8 @@ export default function FoundItemsPage() {
           {item.image ? (
             <Image
               src={item.image || "/placeholder.svg"}
-              alt={item.name}
               fill
+              alt={item.name}
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
@@ -245,13 +249,23 @@ export default function FoundItemsPage() {
           {/* Contact Info */}
           <div className="border-t pt-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <User className="h-4 w-4 text-blue-600" />
-                </div>
+              <div className="flex items-center space-x-2">
+                {item.reporter_image ? (
+                  <Image
+                    src={item.reporter_image}
+                    alt={item.reporter_name}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <User className="h-4 w-4 text-blue-600" />
+                  </div>
+                )}
                 <div>
                   <p className="font-medium text-sm text-gray-900">
-                    Reporter #{item.reportedby}
+                    {item.reporter_name}
                   </p>
                   <p className="text-xs text-gray-500">
                     Posted {new Date(item.reportedat).toLocaleDateString()}
