@@ -4,8 +4,8 @@ const { Pool } = pkg;
 
 const connectionString =
   process.env.NODE_ENV === "production"
-    ? process.env.DATABASE_POSTGRES_URL // Neon in prod
-    : process.env.POSTGRES_URL; // localhost in dev
+    ? process.env.DATABASE_POSTGRES_URL // Neon in production
+    : process.env.POSTGRES_URL; // localhost in development
 
 const pool = new Pool({
   connectionString,

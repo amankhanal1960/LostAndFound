@@ -28,6 +28,7 @@ import {
   Loader2,
 } from "lucide-react";
 import Header from "@/components/header";
+import Link from "next/link";
 
 interface Item {
   itemid: number;
@@ -249,29 +250,32 @@ export default function FoundItemsPage() {
           {/* Contact Info */}
           <div className="border-t pt-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                {item.reporter_image ? (
-                  <Image
-                    src={item.reporter_image}
-                    alt={item.reporter_name}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
-                ) : (
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="h-4 w-4 text-blue-600" />
+              <Link href="/profile">
+                <div className="flex items-center space-x-2">
+                  {item.reporter_image ? (
+                    <Image
+                      src={item.reporter_image}
+                      alt={item.reporter_name}
+                      width={32}
+                      height={32}
+                      className="rounded-full"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-blue-600" />
+                    </div>
+                  )}
+
+                  <div>
+                    <p className="font-medium text-sm text-gray-900">
+                      {item.reporter_name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Posted {new Date(item.reportedat).toLocaleDateString()}
+                    </p>
                   </div>
-                )}
-                <div>
-                  <p className="font-medium text-sm text-gray-900">
-                    {item.reporter_name}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Posted {new Date(item.reportedat).toLocaleDateString()}
-                  </p>
                 </div>
-              </div>
+              </Link>
             </div>
 
             {/* Contact Actions */}
@@ -326,14 +330,14 @@ export default function FoundItemsPage() {
         <div className="text-black">
           <div className="max-w-3xl mx-auto px-6">
             <div className="text-center">
-              <h1 className="text-3xl font-bold my-4">Found Items</h1>
+              <h1 className="text-3xl font-bold my-2">Found Items</h1>
               <p className="text-black text-sm mx-auto">
                 Browse through reported found items and help reunite them with
                 their owners. Every item has a story, and you could be part of a
                 happy ending.
               </p>
               <div className="mt-4 flex justify-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg">
                   <div className="flex items-center space-x-6 text-sm">
                     <div className="flex items-center">
                       <div className="w-3 h-3 bg-green-300 rounded-full mr-2"></div>
@@ -351,7 +355,7 @@ export default function FoundItemsPage() {
         </div>
 
         {/* Search and Filter Section */}
-        <div className="bg-white border-b border-gray-200 sticky top-16 z-100">
+        <div className="bg-white border-b border-gray-200 sticky top-16 z-55">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
               {/* Search Bar */}
@@ -362,7 +366,7 @@ export default function FoundItemsPage() {
                     placeholder="Search found items by title, description, or location..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-3 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="pl-10 pr-4 py-3 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-xs"
                   />
                 </div>
               </div>
@@ -382,7 +386,7 @@ export default function FoundItemsPage() {
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-100">
                     <SelectItem value="all">All Categories</SelectItem>
                     {categories.slice(1).map((category) => (
                       <SelectItem key={category} value={category.toLowerCase()}>
@@ -395,7 +399,7 @@ export default function FoundItemsPage() {
                   <SelectTrigger className="w-40">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-100">
                     <SelectItem value="newest">Newest First</SelectItem>
                     <SelectItem value="oldest">Oldest First</SelectItem>
                     <SelectItem value="location">By Location</SelectItem>

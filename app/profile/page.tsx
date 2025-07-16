@@ -32,7 +32,6 @@ import {
   AlertCircle,
   TrendingUp,
   Award,
-  Heart,
   Share2,
   Settings,
   Mail,
@@ -535,50 +534,6 @@ export default function ProfilePage() {
               )}
             </TabsContent>
           </Tabs>
-        </div>
-
-        {/* Achievement Section */}
-        <div className="bg-white border-t border-gray-200">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Recent Achievements
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="p-4 text-center">
-                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Award className="h-6 w-6 text-yellow-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">
-                  Helper Hero
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Helped 10+ people find their items
-                </p>
-              </Card>
-              <Card className="p-4 text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">
-                  Quick Responder
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Average response time under 3 hours
-                </p>
-              </Card>
-              <Card className="p-4 text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Heart className="h-6 w-6 text-blue-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">
-                  Community Star
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Highly rated by the community
-                </p>
-              </Card>
-            </div>
-          </div>
         </div>
       </div>
     </div>
