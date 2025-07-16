@@ -351,7 +351,7 @@ export default function FoundItemsPage() {
         </div>
 
         {/* Search and Filter Section */}
-        <div className="bg-white border-b border-gray-200 sticky top-16 z-40">
+        <div className="bg-white border-b border-gray-200 sticky top-16 z-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
               {/* Search Bar */}
@@ -369,7 +369,7 @@ export default function FoundItemsPage() {
 
               {/* Filters */}
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
+                <div className="lg:flex items-center space-x-2 hidden ">
                   <Filter className="h-5 w-5 text-gray-400" />
                   <span className="text-sm font-medium text-gray-700">
                     Filter by:

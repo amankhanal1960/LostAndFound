@@ -326,14 +326,13 @@ export default function FoundItemsPage() {
         <div className="text-black">
           <div className="max-w-3xl mx-auto px-6">
             <div className="text-center">
-              <h1 className="text-3xl font-bold my-4">Lost Items</h1>
+              <h1 className="text-3xl font-bold lg:my-4 my-2">Lost Items</h1>
               <p className="text-black text-sm mx-auto">
                 Browse through reported found items and help reunite them with
-                their owners. Every item has a story, and you could be part of a
-                happy ending.
+                their owners.
               </p>
               <div className="mt-4 flex justify-center">
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg lg:p-4 p-0">
                   <div className="flex items-center space-x-6 text-sm">
                     <div className="flex items-center">
                       <div className="w-3 h-3 bg-green-300 rounded-full mr-2"></div>
@@ -351,7 +350,7 @@ export default function FoundItemsPage() {
         </div>
 
         {/* Search and Filter Section */}
-        <div className="bg-white border-b border-gray-200 sticky top-16 z-40">
+        <div className="bg-white border-b border-gray-200 sticky top-16 z-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
               {/* Search Bar */}
@@ -359,17 +358,17 @@ export default function FoundItemsPage() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <Input
-                    placeholder="Search found items by title, description, or location..."
+                    placeholder="Search lost items by title, description, or location..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-3 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="pl-10 pr-4 py-3 w-full border-gray-300 lg:focus:ring-0 lg:focus:border-blue-700"
                   />
                 </div>
               </div>
 
               {/* Filters */}
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
+                <div className="items-center space-x-2 lg:flex hidden">
                   <Filter className="h-5 w-5 text-gray-400" />
                   <span className="text-sm font-medium text-gray-700">
                     Filter by:
