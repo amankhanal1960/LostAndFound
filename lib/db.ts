@@ -1,4 +1,5 @@
 // db.ts
+//official PostgreSQL client library for Node.js.
 import pkg from "pg";
 const { Pool } = pkg;
 
