@@ -55,7 +55,7 @@ export default function LandingPage() {
           <div className="space-y-4">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
               Reuniting People with Their
-              <span className="text-blue-600 block text-7xl font-extrabold">
+              <span className="text-blue-600 block lg:text-7xl text-5xl font-extrabold">
                 Lost Belongings
               </span>
             </h1>
@@ -115,7 +115,7 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  <div className="text-center space-y-2 border-l border-gray-300 pl-3">
+                  <div className="text-center space-y-2 border-gray-300 pl-3">
                     <div className="w-8 h-8  bg-green-100 rounded-full flex items-center justify-center mx-auto">
                       <MapPin className="h-4 w-4 text-green-600" />
                     </div>
@@ -127,7 +127,7 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  <div className="text-center space-y-2 border-l border-gray-300 pl-3">
+                  <div className="text-center space-y-2 border-gray-300 pl-3">
                     <div className="w-8 h-8  bg-purple-100 rounded-full flex items-center justify-center mx-auto">
                       <CheckCircle className="h-4 w-4 text-purple-600" />
                     </div>

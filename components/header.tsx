@@ -108,7 +108,7 @@ export default function Header() {
 
   return (
     <div>
-      <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 z-100 h-16">
+      <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 z-50 h-16">
         <div className="flex items-center justify-between h-full">
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-6">
@@ -157,7 +157,7 @@ export default function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-56 z-200"
+                className="w-56 z-100"
                 align="end"
                 forceMount
               >
