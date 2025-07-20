@@ -50,14 +50,15 @@ CREATE TABLE claims (
   status      claim_status DEFAULT 'PENDING'
 );
 
--- Messages Table
-CREATE TABLE messages (
-  messageid   SERIAL      PRIMARY KEY,
-  claimid     INT         NOT NULL REFERENCES claims(claimid) ON DELETE CASCADE,
-  senderid    INT         NOT NULL REFERENCES users(userid) ON DELETE CASCADE,
-  messagetext TEXT        NOT NULL,
-  sentat      TIMESTAMPTZ DEFAULT NOW(),
-  isread      BOOLEAN     DEFAULT FALSE
+-- comment Table
+CREATE TABLE comments (
+  comment_id   SERIAL      PRIMARY KEY,
+  item_id      INT         NOT NULL REFERENCES items(itemid) ON DELETE CASCADE,
+  user_id      INT         NOT NULL REFERENCES users(userid) ON DELETE CASCADE,
+  parent_id    INT         REFERENCES comments(comment_id) ON DELETE CASCADE,
+  content      TEXT        NOT NULL,
+  created_at   TIMESTAMPTZ DEFAULT NOW(),
+  updated_at   TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Indexes for Performance
@@ -67,9 +68,12 @@ CREATE INDEX idx_items_location ON items(location);
 CREATE INDEX idx_items_category ON items(category);
 
 CREATE INDEX idx_claims_status  ON claims(status);
-CREATE INDEX idx_messages_claim ON messages(claimid);
+
+CREATE INDEX idx_comments_item ON comments(item_id);
+CREATE INDEX idx_comments_parent ON comments(parent_id);
+CREATE INDEX idx_comments_user ON comments(user_id);
 
 SELECT * FROM users;
-SELECT * FROM items;
+SELECT * FROM comments;
 
 -- DELETE FROM items;

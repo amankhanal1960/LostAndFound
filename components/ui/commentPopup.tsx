@@ -12,7 +12,7 @@ import {
   DialogOverlay,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, Reply, Send } from "lucide-react";
+import { Reply, Send } from "lucide-react";
 
 export interface Comment {
   id: string;
@@ -20,8 +20,6 @@ export interface Comment {
   avatar: string;
   content: string;
   timestamp: string;
-  likes: number;
-  isLiked: boolean;
   replies: Comment[];
 }
 const mockComments: Comment[] = [
@@ -32,8 +30,6 @@ const mockComments: Comment[] = [
     content:
       "This design looks absolutely stunning! The color palette and typography work so well together. Really impressed with the attention to detail.",
     timestamp: "2 hours ago",
-    likes: 12,
-    isLiked: true,
     replies: [
       {
         id: "1-1",
@@ -41,8 +37,6 @@ const mockComments: Comment[] = [
         avatar: "MJ",
         content: "Totally agree! The gradient effects are particularly nice.",
         timestamp: "1 hour ago",
-        likes: 3,
-        isLiked: false,
         replies: [],
       },
       {
@@ -52,8 +46,6 @@ const mockComments: Comment[] = [
         content:
           "Thanks Sarah! Spent a lot of time getting the colors just right 🎨",
         timestamp: "45 minutes ago",
-        likes: 8,
-        isLiked: true,
         replies: [],
       },
     ],
@@ -65,8 +57,6 @@ const mockComments: Comment[] = [
     content:
       "The mobile responsiveness is on point. How did you handle the navigation collapse?",
     timestamp: "3 hours ago",
-    likes: 7,
-    isLiked: false,
     replies: [
       {
         id: "2-1",
@@ -75,8 +65,6 @@ const mockComments: Comment[] = [
         content:
           "Used a combination of CSS Grid and Flexbox with some custom breakpoints. Happy to share the code!",
         timestamp: "2 hours ago",
-        likes: 5,
-        isLiked: false,
         replies: [],
       },
     ],
@@ -88,8 +76,6 @@ const mockComments: Comment[] = [
     content:
       "Love the micro-interactions! The button hover states feel so smooth and polished.",
     timestamp: "4 hours ago",
-    likes: 15,
-    isLiked: true,
     replies: [],
   },
 ];
@@ -103,13 +89,6 @@ function CommentItem({
 }) {
   const [isReplying, setIsReplying] = useState(false);
   const [replyText, setReplyText] = useState("");
-  const [isLiked, setIsLiked] = useState(comment.isLiked);
-  const [likes, setLikes] = useState(comment.likes);
-
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikes(isLiked ? likes - 1 : likes + 1);
-  };
 
   const handleReply = () => {
     if (!replyText.trim()) return;
@@ -142,19 +121,6 @@ function CommentItem({
             {comment.content}
           </p>
           <div className="flex items-center gap-1 mb-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLike}
-              className={`h-7 px-2 text-xs ${
-                isLiked ? "text-red-500" : "text-muted-foreground"
-              } hover:text-red-500`}
-            >
-              <Heart
-                className={`w-3 h-3 mr-1 ${isLiked ? "fill-current" : ""}`}
-              />
-              {likes}
-            </Button>
             <Button
               variant="ghost"
               size="sm"
