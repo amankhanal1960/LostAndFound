@@ -105,25 +105,23 @@ function CommentItem({ comment, itemId, onReplyAdded }: CommentItemProps) {
             className="min-h-[60px] resize-none"
           />
           <div className="flex justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={() => {
                 setIsReplying(false);
                 setReplyText("");
               }}
+              className=" text-sm text-blue-500 hover:text-blue-700 bg-blue-50 px-2 py-1 rounded-sm"
             >
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={handleReply}
               disabled={!replyText.trim() || isSubmitting}
-              className="flex items-center"
-              size="sm"
+              className="flex items-center px-3 py-1 rounded-sm text-white bg-blue-600 hover:bg-blue-700 text-sm"
             >
               <Send className="w-3 h-3 mr-1" />
               Reply
-            </Button>
+            </button>
           </div>
         </div>
       )}
@@ -256,15 +254,14 @@ export function CommentsPopup({
                 className="min-h-[60px] resize-none"
               />
               <div className="flex justify-end">
-                <Button
+                <button
                   onClick={handleAddComment}
                   disabled={!newComment.trim() || isSubmitting}
-                  size="sm"
-                  className="flex items-center"
+                  className="flex items-center px-3 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700"
                 >
                   <Send className="w-3 h-3 mr-1" />
                   Comment
-                </Button>
+                </button>
               </div>
             </div>
           </div>

@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
@@ -14,20 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Search,
-  Filter,
-  MapPin,
-  Calendar,
-  Clock,
-  User,
-  Mail,
-  Eye,
-  Heart,
-  Share2,
-  Loader2,
-} from "lucide-react";
+import { Search, Filter, Eye, Loader2 } from "lucide-react";
 import Header from "@/components/header";
+import { ItemCard } from "@/components/ui/item-card";
 
 interface Item {
   itemid: number;
@@ -163,144 +150,6 @@ export default function FoundItemsPage() {
     setSortBy("newest");
   };
 
-  const ItemCard = ({ item }: { item: Item }) => (
-    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm p-0">
-      <CardContent className="p-0">
-        {/* Image Section */}
-        <div className="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden rounded-t-lg">
-          <div className="absolute top-1 left-1 z-10">
-            <Badge className="bg-green-100 text-green-700 hover:bg-green-200">
-              Lost
-            </Badge>
-          </div>
-          {item.image ? (
-            <Image
-              src={item.image || "/placeholder.svg"}
-              fill
-              alt={item.name}
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              <Eye className="h-12 w-12" />
-            </div>
-          )}
-          <div className="absolute top-3 right-3 flex space-x-2">
-            <Button
-              size="sm"
-              variant="secondary"
-              className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
-            >
-              <Heart className="h-4 w-4" />
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
-            >
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Content Section */}
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-1">
-              <h3 className="font-semibold text-lg text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
-                {item.name}
-              </h3>
-              {item.category && (
-                <Badge variant="outline" className="text-xs">
-                  {item.category}
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          {/* Description */}
-          {item.description && (
-            <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
-              {item.description}
-            </p>
-          )}
-
-          {/* Location & Date */}
-          <div className="space-y-2 mb-4">
-            {item.location && (
-              <div className="flex items-center text-sm text-gray-500">
-                <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-                <span className="truncate">{item.location}</span>
-              </div>
-            )}
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                <span>{new Date(item.reportedat).toLocaleDateString()}</span>
-              </div>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-1 text-gray-400" />
-                <span>{new Date(item.reportedat).toLocaleTimeString()}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Info */}
-          <div className="border-t pt-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                {item.reporter_image ? (
-                  <Image
-                    src={item.reporter_image}
-                    alt={item.reporter_name}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
-                ) : (
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="h-4 w-4 text-blue-600" />
-                  </div>
-                )}
-                <div>
-                  <p className="font-medium text-sm text-gray-900">
-                    {item.reporter_name}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Posted {new Date(item.reportedat).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Actions */}
-            <div className="flex space-x-2">
-              {item.contactnumber && (
-                <Button
-                  size="sm"
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
-                >
-                  <Mail className="h-4 w-4 mr-2" />
-                  Contact
-                </Button>
-              )}
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex-1 bg-transparent"
-                onClick={() => router.push(`/items/${item.itemid}`)}
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                View Details
-              </Button>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -350,7 +199,7 @@ export default function FoundItemsPage() {
         </div>
 
         {/* Search and Filter Section */}
-        <div className="bg-white border-b border-gray-200 sticky top-16 z-100">
+        <div className="bg-white border-b border-gray-200 top-16 z-55">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
               {/* Search Bar */}
@@ -481,7 +330,7 @@ export default function FoundItemsPage() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredItems.map((item) => (
-                  <ItemCard key={item.itemid} item={item} />
+                  <ItemCard key={item.itemid} item={item} variant="lost" />
                 ))}
               </div>
 
