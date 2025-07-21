@@ -1,5 +1,5 @@
 
--- DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS comments;
 -- DROP TABLE IF EXISTS claims;
 -- DROP TABLE IF EXISTS items;
 -- DROP TABLE IF EXISTS users;
@@ -52,13 +52,13 @@ CREATE TABLE claims (
 
 -- comment Table
 CREATE TABLE comments (
-  comment_id   SERIAL      PRIMARY KEY,
-  item_id      INT         NOT NULL REFERENCES items(itemid) ON DELETE CASCADE,
-  user_id      INT         NOT NULL REFERENCES users(userid) ON DELETE CASCADE,
-  parent_id    INT         REFERENCES comments(comment_id) ON DELETE CASCADE,
+  commentid   SERIAL      PRIMARY KEY,
+  itemid      INT         NOT NULL REFERENCES items(itemid) ON DELETE CASCADE,
+  userid      INT         NOT NULL REFERENCES users(userid) ON DELETE CASCADE,
+  parentid    INT         REFERENCES comments(commentid) ON DELETE CASCADE,
   content      TEXT        NOT NULL,
-  created_at   TIMESTAMPTZ DEFAULT NOW(),
-  updated_at   TIMESTAMPTZ DEFAULT NOW()
+  createdat   TIMESTAMPTZ DEFAULT NOW(),
+  updatedat   TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Indexes for Performance
@@ -69,11 +69,11 @@ CREATE INDEX idx_items_category ON items(category);
 
 CREATE INDEX idx_claims_status  ON claims(status);
 
-CREATE INDEX idx_comments_item ON comments(item_id);
-CREATE INDEX idx_comments_parent ON comments(parent_id);
-CREATE INDEX idx_comments_user ON comments(user_id);
+CREATE INDEX idx_comments_item ON comments(itemid);
+CREATE INDEX idx_comments_parent ON comments(parentid);
+CREATE INDEX idx_comments_user ON comments(userid);
 
-SELECT * FROM users;
+SELECT * FROM items;
 SELECT * FROM comments;
 
 -- DELETE FROM items;

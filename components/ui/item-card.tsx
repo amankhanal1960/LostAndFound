@@ -176,10 +176,13 @@ export const ItemCard = ({ item, variant }: ItemCardProps) => {
                     <MessageCircle className="w-4 h-4 mr-2" />
                     Comments
                   </Button>
-                  <CommentsPopup
-                    open={isCommentsOpen}
-                    onOpenChange={setCommentsOpen}
-                  />
+                  {isCommentsOpen && (
+                    <CommentsPopup
+                      open={isCommentsOpen}
+                      onOpenChange={setCommentsOpen}
+                      itemId={item.itemid.toString()}
+                    />
+                  )}
                 </>
               )}
               <Button
