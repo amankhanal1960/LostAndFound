@@ -358,7 +358,7 @@ export default function ReportItemPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="location">Location *</Label>
-                  <Textarea
+                  <Input
                     id="location"
                     placeholder={`Provide the location where you ${
                       reportType === "lost" ? "lost" : "found"
@@ -370,7 +370,6 @@ export default function ReportItemPage() {
                         location: e.target.value,
                       }))
                     }
-                    rows={4}
                     required
                   />
                 </div>
@@ -395,16 +394,15 @@ export default function ReportItemPage() {
                         <p className="text-sm text-gray-600">
                           Upload a photo to help identify the item
                         </p>
-                        <Button
+                        <button
                           type="button"
-                          variant="outline"
-                          className="mt-2 bg-transparent"
+                          className="mt-2 text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
                           onClick={() =>
                             document.getElementById("image")?.click()
                           }
                         >
                           Choose Image
-                        </Button>
+                        </button>
                       </div>
                     ) : (
                       <div className="space-y-4">

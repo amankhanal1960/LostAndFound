@@ -90,7 +90,7 @@ function CommentItem({ comment, itemId, onReplyAdded }: CommentItemProps) {
               className="h-6 px-2 text-xs hover:text-blue-500"
             >
               <Reply className="w-3 h-3 mr-1" />
-              Reply
+              <span className="sr-only sm:not-sr-only">Reply</span>
             </Button>
           </div>
         </div>
@@ -116,9 +116,10 @@ function CommentItem({ comment, itemId, onReplyAdded }: CommentItemProps) {
               Cancel
             </Button>
             <Button
-              size="sm"
               onClick={handleReply}
               disabled={!replyText.trim() || isSubmitting}
+              className="flex items-center"
+              size="sm"
             >
               <Send className="w-3 h-3 mr-1" />
               Reply
@@ -128,7 +129,7 @@ function CommentItem({ comment, itemId, onReplyAdded }: CommentItemProps) {
       )}
 
       {comment.replies && comment.replies.length > 0 && (
-        <div className="ml-11 space-y-3 border-l-2 border-gray-100 pl-4">
+        <div className="ml-6 sm:ml-11 space-y-3 border-l-2 border-gray-100 pl-4">
           {comment.replies.map((reply) => (
             <CommentItem
               key={reply.commentid}
@@ -164,7 +165,6 @@ export function CommentsPopup({
       const response = await fetch(`/api/comments?itemid=${itemId}`);
       const json = await response.json();
       setComments(Array.isArray(json) ? json : json.data || []);
-      console.log("Fetched comments:", json);
     } catch (error) {
       console.error("Failed to fetch comments:", error);
     } finally {
@@ -202,17 +202,18 @@ export function CommentsPopup({
     }
   };
 
-  // Don’t render when closed
   if (!open) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Comments ({comments.length})</DialogTitle>
+      <DialogContent className="sm:max-w-2xl max-h-[90dvh] sm:max-h-[80vh] flex flex-col p-4 sm:p-6">
+        <DialogHeader className="px-0 sm:px-0">
+          <DialogTitle className="text-lg sm:text-xl">
+            Comments ({comments.length})
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+        <div className="flex-1 overflow-y-auto pr-1 sm:pr-2 space-y-4">
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">
               Loading comments...
@@ -259,6 +260,7 @@ export function CommentsPopup({
                   onClick={handleAddComment}
                   disabled={!newComment.trim() || isSubmitting}
                   size="sm"
+                  className="flex items-center"
                 >
                   <Send className="w-3 h-3 mr-1" />
                   Comment

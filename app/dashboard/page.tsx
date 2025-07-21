@@ -83,12 +83,12 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-indigo-50 to-blue-50">
+    <div className="min-h-screen">
       {/* Fixed Header */}
       <Header />
       <div className="flex pt-16">
         {/* Desktop Sidebar */}
-        <div className="hidden lg:block w-72 bg-gradient-to-br from-blue-50 via-white to-indigo-50 backdrop-blur-sm border-r border-gray-200/60">
+        <div className="hidden lg:block w-72  backdrop-blur-sm border-r border-gray-200/60">
           <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
             <SidebarContent />
           </div>

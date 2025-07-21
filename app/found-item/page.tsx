@@ -211,7 +211,7 @@ export default function FoundItemsPage() {
                     placeholder="Search found items by title, description, or location..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-3 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-xs"
+                    className="pl-10 pr-4 py-3 w-full border-gray-300 lg:focus:border-blue-500 lg:focus:ring-0 text-xs"
                   />
                 </div>
               </div>
