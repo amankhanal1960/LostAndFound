@@ -15,9 +15,8 @@ import {
   User,
   MessageCircle,
   Eye,
-  Heart,
-  Share2,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 export interface Item {
   itemid: number;
@@ -33,16 +32,55 @@ export interface Item {
   location: string | null;
   category: string | null;
   contactnumber: string | null;
+  // Add claim info to item
+  claim_status?: "PENDING" | "ACCEPTED" | "REJECTED" | null;
+  claim_id?: number | null;
 }
 
 interface ItemCardProps {
   item: Item;
   variant: "found" | "lost";
+  currentUserId?: number | null; // Pass current user ID from parent
 }
 
-export const ItemCard = ({ item, variant }: ItemCardProps) => {
+export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
   const [isCommentsOpen, setCommentsOpen] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [claimText, setClaimText] = useState("");
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  if (status === "loading" || !session) {
+    return null;
+  }
+
+  const isOwner = currentUserId === item.reportedby;
+  const hasClaim =
+    item.claim_status !== null && item.claim_status !== undefined;
+
+  const handleClaimSubmit = async () => {
+    if (!currentUserId) return;
+
+    try {
+      const response = await fetch("/api/claims", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          itemId: item.itemid,
+          userId: currentUserId,
+          claimText,
+        }),
+      });
+
+      if (response.ok) {
+        setIsClaiming(false);
+        // Refresh data or update UI
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Claim submission failed", error);
+    }
+  };
 
   return (
     <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm p-0">
@@ -60,6 +98,40 @@ export const ItemCard = ({ item, variant }: ItemCardProps) => {
               {variant === "found" ? "Found" : "Lost"}
             </Badge>
           </div>
+          <div className="absolute top-1 right-1 z-10">
+            {/* Item Status Badge */}
+            <Badge
+              className={`${
+                item.status === "OPEN"
+                  ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                  : "bg-purple-100 text-purple-700 hover:bg-purple-200"
+              }`}
+            >
+              {item.status === "OPEN" ? "Open" : "Resolved"}
+            </Badge>
+          </div>
+
+          {/* Claim Status Badge */}
+          {hasClaim && (
+            <div className="absolute top-1 right-1 z-10">
+              <Badge
+                className={`${
+                  item.claim_status === "PENDING"
+                    ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                    : item.claim_status === "ACCEPTED"
+                    ? "bg-green-100 text-green-700 hover:bg-green-200"
+                    : "bg-red-100 text-red-700 hover:bg-red-200"
+                }`}
+              >
+                {item.claim_status === "PENDING"
+                  ? "Claim Pending"
+                  : item.claim_status === "ACCEPTED"
+                  ? "Claim Accepted"
+                  : "Claim Rejected"}
+              </Badge>
+            </div>
+          )}
+
           {item.image ? (
             <Image
               src={item.image}
@@ -72,22 +144,6 @@ export const ItemCard = ({ item, variant }: ItemCardProps) => {
               <Eye className="h-12 w-12" />
             </div>
           )}
-          <div className="absolute top-3 right-3 flex space-x-2">
-            <Button
-              size="sm"
-              variant="secondary"
-              className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
-            >
-              <Heart className="h-4 w-4" />
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
-            >
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
 
         {/* Content Section */}
@@ -185,19 +241,45 @@ export const ItemCard = ({ item, variant }: ItemCardProps) => {
                   )}
                 </>
               )}
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex-1 bg-transparent"
-                onClick={() => router.push(`/items/${item.itemid}`)}
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                View Details
-              </Button>
+
+              {/* Claim Button - Conditionally shown */}
+              {item.status === "OPEN" && !isOwner && !hasClaim && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 bg-transparent"
+                  onClick={() => setIsClaiming(true)}
+                >
+                  {variant === "found" ? "Claim Item" : "Claim Found by You"}
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </CardContent>
+
+      {/* Claim Modal */}
+      {isClaiming && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full">
+            <h3 className="font-semibold mb-4">Claim {item.name}</h3>
+            <textarea
+              value={claimText}
+              onChange={(e) => setClaimText(e.target.value)}
+              placeholder="Explain why you're claiming this item..."
+              className="w-full p-2 border rounded mb-4 min-h-[120px]"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsClaiming(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleClaimSubmit} disabled={!claimText.trim()}>
+                Submit Claim
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 };

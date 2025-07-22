@@ -1,5 +1,5 @@
 
-DROP TABLE IF EXISTS comments;
+-- DROP TABLE IF EXISTS comments;
 -- DROP TABLE IF EXISTS claims;
 -- DROP TABLE IF EXISTS items;
 -- DROP TABLE IF EXISTS users;
