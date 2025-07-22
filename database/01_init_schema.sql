@@ -73,7 +73,8 @@ CREATE INDEX idx_comments_item ON comments(itemid);
 CREATE INDEX idx_comments_parent ON comments(parentid);
 CREATE INDEX idx_comments_user ON comments(userid);
 
-SELECT * FROM items;
-SELECT * FROM comments;
 
+
+SELECT * FROM users;
+-- SELECT * FROM comments;
 -- DELETE FROM items;
