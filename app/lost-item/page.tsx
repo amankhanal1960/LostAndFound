@@ -15,6 +15,7 @@ import {
 import { Search, Filter, Eye, Loader2 } from "lucide-react";
 import Header from "@/components/header";
 import { ItemCard } from "@/components/ui/item-card";
+import { useSession } from "next-auth/react";
 
 interface Item {
   itemid: number;
@@ -60,6 +61,9 @@ export default function FoundItemsPage() {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const router = useRouter();
+
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id ? Number(session.user.id) : null;
 
   useEffect(() => {
     async function loadData() {
@@ -330,7 +334,12 @@ export default function FoundItemsPage() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredItems.map((item) => (
-                  <ItemCard key={item.itemid} item={item} variant="lost" />
+                  <ItemCard
+                    key={item.itemid}
+                    item={item}
+                    variant="lost"
+                    currentUserId={currentUserId}
+                  />
                 ))}
               </div>
 

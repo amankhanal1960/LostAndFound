@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
   //again the 10 specifies the base-10 parsing
   const offset = parseInt(url.searchParams.get("offset") || "0", 10);
 
+  const reportedby = url.searchParams.get("reportedby");
   // fetch all items of type FOUND
   const { rows } = await query(
     `SELECT
@@ -34,9 +35,10 @@ export async function GET(req: NextRequest) {
        users.image            AS reporter_image
      FROM items JOIN users on users.userid = items.reportedby
      WHERE items.type = $1
+     AND items.reportedby = $4
      ORDER BY items.reportedat DESC
      LIMIT $2 OFFSET $3`,
-    ["FOUND", limit, offset]
+    ["FOUND", limit, offset, reportedby]
   );
 
   //sends the json request back to the client with the rows that we have selected

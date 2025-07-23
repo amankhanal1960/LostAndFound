@@ -4,10 +4,12 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "./button";
-import { Card, CardContent } from "./card";
-import { Badge } from "./badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { CommentsPopup } from "./commentPopup";
+import { ClaimsDialog } from "../claims-management";
+// import { ClaimsManagement } from "../claims-management";
 import {
   MapPin,
   Calendar,
@@ -32,15 +34,17 @@ export interface Item {
   location: string | null;
   category: string | null;
   contactnumber: string | null;
-  // Add claim info to item
+  // Claim info for current user
   claim_status?: "PENDING" | "ACCEPTED" | "REJECTED" | null;
   claim_id?: number | null;
+  // Total pending claims count
+  pending_claims_count?: number;
 }
 
 interface ItemCardProps {
   item: Item;
   variant: "found" | "lost";
-  currentUserId?: number | null; // Pass current user ID from parent
+  currentUserId?: number | null;
 }
 
 export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
@@ -57,6 +61,7 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
   const isOwner = currentUserId === item.reportedby;
   const hasClaim =
     item.claim_status !== null && item.claim_status !== undefined;
+  const pendingClaimsCount = item.pending_claims_count || 0;
 
   const handleClaimSubmit = async () => {
     if (!currentUserId) return;
@@ -74,11 +79,15 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
 
       if (response.ok) {
         setIsClaiming(false);
-        // Refresh data or update UI
+        setClaimText("");
         router.refresh();
+      } else {
+        const error = await response.json();
+        alert(error.error || "Failed to submit claim");
       }
     } catch (error) {
       console.error("Claim submission failed", error);
+      alert("Failed to submit claim");
     }
   };
 
@@ -98,7 +107,8 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
               {variant === "found" ? "Found" : "Lost"}
             </Badge>
           </div>
-          <div className="absolute top-1 right-1 z-10">
+
+          <div className="absolute top-1 right-1 z-10 flex flex-col gap-1">
             {/* Item Status Badge */}
             <Badge
               className={`${
@@ -109,11 +119,9 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
             >
               {item.status === "OPEN" ? "Open" : "Resolved"}
             </Badge>
-          </div>
 
-          {/* Claim Status Badge */}
-          {hasClaim && (
-            <div className="absolute top-1 right-1 z-10">
+            {/* User's Claim Status Badge */}
+            {hasClaim && (
               <Badge
                 className={`${
                   item.claim_status === "PENDING"
@@ -124,17 +132,17 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
                 }`}
               >
                 {item.claim_status === "PENDING"
-                  ? "Claim Pending"
+                  ? "Your Claim Pending"
                   : item.claim_status === "ACCEPTED"
-                  ? "Claim Accepted"
-                  : "Claim Rejected"}
+                  ? "Your Claim Accepted"
+                  : "Your Claim Rejected"}
               </Badge>
-            </div>
-          )}
+            )}
+          </div>
 
           {item.image ? (
             <Image
-              src={item.image}
+              src={item.image || "/placeholder.svg"}
               fill
               alt={item.name}
               className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -196,7 +204,7 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
                 <div className="flex items-center space-x-2">
                   {item.reporter_image ? (
                     <Image
-                      src={item.reporter_image}
+                      src={item.reporter_image || "/placeholder.svg"}
                       alt={item.reporter_name}
                       width={32}
                       height={32}
@@ -207,7 +215,6 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
                       <User className="h-4 w-4 text-blue-600" />
                     </div>
                   )}
-
                   <div>
                     <p className="font-medium text-sm text-gray-900">
                       {item.reporter_name}
@@ -220,29 +227,29 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
               </Link>
             </div>
 
-            {/* Contact Actions */}
+            {/* Action Buttons */}
             <div className="flex space-x-2">
-              {item.contactnumber && (
-                <>
-                  <Button
-                    size="sm"
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
-                    onClick={() => setCommentsOpen(true)}
-                  >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Comments
-                  </Button>
-                  {isCommentsOpen && (
-                    <CommentsPopup
-                      open={isCommentsOpen}
-                      onOpenChange={setCommentsOpen}
-                      itemId={item.itemid.toString()}
-                    />
-                  )}
-                </>
+              {/* Comments Button */}
+              <Button
+                size="sm"
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                onClick={() => setCommentsOpen(true)}
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Comments
+              </Button>
+
+              {/* Claims Management for Owner */}
+              {isOwner && pendingClaimsCount > 0 && (
+                <ClaimsDialog
+                  itemId={item.itemid}
+                  ownerId={item.reportedby}
+                  itemName={item.name}
+                  claimsCount={pendingClaimsCount}
+                />
               )}
 
-              {/* Claim Button - Conditionally shown */}
+              {/* Claim Button for Non-owners */}
               {item.status === "OPEN" && !isOwner && !hasClaim && (
                 <Button
                   size="sm"
@@ -250,7 +257,7 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
                   className="flex-1 bg-transparent"
                   onClick={() => setIsClaiming(true)}
                 >
-                  {variant === "found" ? "Claim Item" : "Claim Found by You"}
+                  {variant === "found" ? "Claim Item" : "I Found This"}
                 </Button>
               )}
             </div>
@@ -258,19 +265,47 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
         </div>
       </CardContent>
 
+      {/* Comments Popup */}
+      {isCommentsOpen && (
+        <CommentsPopup
+          open={isCommentsOpen}
+          onOpenChange={setCommentsOpen}
+          itemId={item.itemid.toString()}
+        />
+      )}
+
       {/* Claim Modal */}
       {isClaiming && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full">
-            <h3 className="font-semibold mb-4">Claim {item.name}</h3>
+          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="font-semibold mb-4">
+              {variant === "found"
+                ? `Claim "${item.name}"`
+                : `Report Found: "${item.name}"`}
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              {variant === "found"
+                ? "Explain why this item belongs to you and provide details to verify ownership."
+                : "Explain how you found this item and provide details about when and where."}
+            </p>
             <textarea
               value={claimText}
               onChange={(e) => setClaimText(e.target.value)}
-              placeholder="Explain why you're claiming this item..."
-              className="w-full p-2 border rounded mb-4 min-h-[120px]"
+              placeholder={
+                variant === "found"
+                  ? "Describe the item details, when you lost it, where, and any identifying features..."
+                  : "Describe when and where you found this item, its condition, and any other relevant details..."
+              }
+              className="w-full p-3 border rounded-lg mb-4 min-h-[120px] resize-none"
             />
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsClaiming(false)}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsClaiming(false);
+                  setClaimText("");
+                }}
+              >
                 Cancel
               </Button>
               <Button onClick={handleClaimSubmit} disabled={!claimText.trim()}>
