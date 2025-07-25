@@ -16,6 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ItemCard } from "@/components/ui/item-card";
+import { ClaimCard } from "@/components/ui/claim-card";
+import { SkeletonItemCard } from "@/components/ui/skeleton";
+import { SkeletonClaimCard } from "@/components/ui/skeleton";
 
 import {
   Calendar,
@@ -28,14 +31,13 @@ import {
   Share2,
   Settings,
   Mail,
-  Package,
   User,
+  Loader2,
 } from "lucide-react";
 import Header from "@/components/header";
-import { report } from "process";
 
 // Types for real data
-interface UserItem {
+interface MyItems {
   itemid: number;
   name: string;
   description: string | null;
@@ -104,54 +106,60 @@ const getStatusIcon = (status: string) => {
 };
 
 export default function ProfilePage() {
+  const [limit] = useState(10);
+  const [offset, setOffset] = useState(0);
   const { data: session } = useSession();
   //which of the three tabs is visible
   const [activeTab, setActiveTab] = useState("reports");
   //controls the dropdown filter (all, open, pending, resolved, accepted, rejected)
   const [filterStatus, setFilterStatus] = useState("all");
-  //The items the user has reported(lost or found)
-  const [foundItems, setFoundItems] = useState<UserItem[]>([]);
   //the claims the user has made on ohters items
-  const [lostItems, setLostItems] = useState<MyClaim[]>([]);
+  const [myItems, setMyItems] = useState<MyItems[]>([]);
+
+  const [claims, setClaims] = useState<MyClaim[]>([]);
   //the claims that the other users have made on this users items
   const [claimsForMyItems, setClaimsForMyItems] = useState<ClaimForMyItem[]>(
     []
   );
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
 
   const fetchUserData = useCallback(async () => {
+    setLoading(true);
     try {
-      const [
-        foundRes,
-        lostRes,
-        // ,claimsRes
-      ] = await Promise.all([
-        fetch(`/api/items/browse/found?reportedby=${session?.user?.id}`),
-        fetch(`/api/items/browse/lost?reportedby=${session?.user?.id}`),
-        // fetch(`/api/claims?ownerId=${session?.user?.id}`), //claims on your items
+      const [itemsRes, claimsRes] = await Promise.all([
+        fetch(
+          `/api/items/browse/myItems?limit=${limit}&offset=${offset}&reportedby=${session?.user?.id}`
+        ),
+        fetch(`/api/claims?limit=${limit}&offset=${offset}`),
       ]);
 
-      if (
-        !foundRes ||
-        !lostRes
-        //  || !claimsRes.ok
-      ) {
+      if (!itemsRes || !claimsRes) {
         throw new Error("One of the request failed");
       }
 
-      const { items: foundItems } = await foundRes.json();
-      const { items: lostItems } = await lostRes.json();
-      // const claims = await claimsRes.json();
+      const { items: fetchedItems } = await itemsRes.json();
 
-      setFoundItems(foundItems);
-      setLostItems(lostItems);
-      // setClaimsForMyItems(claims.claims || []);
+      // const { json } = await itemsRes.json();
+      // const fetchedItems = json.items;
+
+      const claims = await claimsRes.json();
+
+      setMyItems((prev) =>
+        offset === 0 ? fetchedItems : [...prev, ...fetchedItems]
+      );
+      setClaims(claims.claims || []);
+
+      setClaimsForMyItems(claims.claims || []);
+
+      // Check if there are more items to load
+      setHasMore(fetchedItems.length === limit);
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.id]);
+  }, [session?.user?.id, limit, offset]);
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -159,76 +167,17 @@ export default function ProfilePage() {
     }
   }, [session, fetchUserData]);
 
-  const allItems = [
-    ...foundItems.map((item) => ({ ...item, type: "FOUND" as const })),
-    ...lostItems.map((item) => ({ ...item, type: "LOST" as const })),
-  ];
+  const loadMore = () => {
+    setOffset((prev) => prev + limit);
+    fetchUserData();
+  };
 
-  const filteredClaims = lostItems.filter((claim) => {
+  const allItems = [...myItems.map((item) => ({ ...item }))];
+
+  const filteredClaims = claims.filter((claim) => {
     if (filterStatus === "all") return true;
     return claim.status.toLowerCase() === filterStatus.toLowerCase();
   });
-
-  const ClaimCard = ({ claim }: { claim: MyClaim }) => (
-    <Card className="group hover:shadow-lg transition-all duration-200 border border-gray-200">
-      <CardContent className="p-0">
-        <div className="flex">
-          {/* Image */}
-          <div className="relative w-32 h-32 bg-gray-100 flex-shrink-0">
-            {claim.item_image ? (
-              <Image
-                src={claim.item_image || "/placeholder.svg"}
-                alt={claim.item_name}
-                fill
-                className="object-cover rounded-l-lg"
-                sizes="128px"
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-400">
-                <Package className="h-8 w-8" />
-              </div>
-            )}
-          </div>
-          {/* Content */}
-          <div className="flex-1 p-4">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg text-gray-900 mb-1">
-                  {claim.item_name}
-                </h3>
-                <Badge
-                  className={
-                    claim.item_type === "LOST"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-green-100 text-green-700"
-                  }
-                >
-                  {claim.item_type} Item
-                </Badge>
-              </div>
-              <Badge className={getStatusColor(claim.status)}>
-                {getStatusIcon(claim.status)}
-                <span className="ml-1 capitalize">{claim.status}</span>
-              </Badge>
-            </div>
-            <div className="bg-gray-50 p-3 rounded-lg mb-3">
-              <p className="text-sm text-gray-700 line-clamp-3">
-                {claim.claimtext}
-              </p>
-            </div>
-            <div className="flex items-center justify-between text-sm text-gray-500">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-1" />
-                <span>
-                  Claimed {new Date(claim.claimedat).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   const ClaimsOnMyItemsCard = ({ claim }: { claim: ClaimForMyItem }) => (
     <Card className="group hover:shadow-lg transition-all duration-200 border border-gray-200">
@@ -274,17 +223,6 @@ export default function ProfilePage() {
       </CardContent>
     </Card>
   );
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="pt-16 flex items-center justify-center h-96">
-          <div className="text-center">Loading...</div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -372,7 +310,7 @@ export default function ProfilePage() {
                   }`}
                 >
                   <Award className="h-4 w-4 mr-2" />
-                  My Claims ({lostItems.length})
+                  My Claims ({claims.length})
                 </button>
                 <button
                   onClick={() => setActiveTab("claims-on-items")}
@@ -402,7 +340,13 @@ export default function ProfilePage() {
             </div>
 
             <TabsContent value="reports" className="space-y-4">
-              {allItems.length === 0 ? (
+              {loading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {Array.from({ length: limit }).map((_, i) => (
+                    <SkeletonItemCard key={i} />
+                  ))}
+                </div>
+              ) : allItems.length === 0 ? (
                 <Card className="p-12 text-center">
                   <div className="text-gray-400 mb-4">
                     <TrendingUp className="h-16 w-16 mx-auto" />
@@ -425,7 +369,6 @@ export default function ProfilePage() {
                         key={item.itemid}
                         item={item}
                         variant={item.type === "FOUND" ? "found" : "lost"}
-                        //converting the string that the nextauth provided to number | null | undefined
                         currentUserId={
                           session?.user?.id
                             ? Number(session.user.id)
@@ -434,12 +377,40 @@ export default function ProfilePage() {
                       />
                     ))}
                   </div>
+
+                  {/* Load More */}
+                  {hasMore && (
+                    <div className="mt-12 text-center">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="px-8 bg-transparent"
+                        onClick={loadMore}
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Loading...
+                          </>
+                        ) : (
+                          "Load More Items"
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </>
               )}
             </TabsContent>
 
             <TabsContent value="claims" className="space-y-4">
-              {filteredClaims.length === 0 ? (
+              {loading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {Array.from({ length: limit }).map((_, i) => (
+                    <SkeletonClaimCard key={i} />
+                  ))}
+                </div>
+              ) : filteredClaims.length === 0 ? (
                 <Card className="p-12 text-center">
                   <div className="text-gray-400 mb-4">
                     <Award className="h-16 w-16 mx-auto" />
@@ -455,9 +426,11 @@ export default function ProfilePage() {
                   </Button>
                 </Card>
               ) : (
-                filteredClaims.map((claim) => (
-                  <ClaimCard key={claim.claimid} claim={claim} />
-                ))
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredClaims.map((claim) => (
+                    <ClaimCard key={claim.claimid} claim={claim} />
+                  ))}
+                </div>
               )}
             </TabsContent>
 

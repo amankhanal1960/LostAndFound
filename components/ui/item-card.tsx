@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CommentsPopup } from "./commentPopup";
-import { ClaimsDialog } from "../claims-management";
-// import { ClaimsManagement } from "../claims-management";
+import { useSnackbar } from "notistack";
+
 import {
   MapPin,
   Calendar,
@@ -22,6 +22,7 @@ import { useSession } from "next-auth/react";
 
 export interface Item {
   itemid: number;
+  userid: number;
   name: string;
   description: string | null;
   image: string | null;
@@ -34,11 +35,8 @@ export interface Item {
   location: string | null;
   category: string | null;
   contactnumber: string | null;
-  // Claim info for current user
   claim_status?: "PENDING" | "ACCEPTED" | "REJECTED" | null;
   claim_id?: number | null;
-  // Total pending claims count
-  pending_claims_count?: number;
 }
 
 interface ItemCardProps {
@@ -54,25 +52,23 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
   const router = useRouter();
   const { data: session, status } = useSession();
 
+  const { enqueueSnackbar } = useSnackbar();
+
   if (status === "loading" || !session) {
     return null;
   }
 
   const isOwner = currentUserId === item.reportedby;
-  const hasClaim =
-    item.claim_status !== null && item.claim_status !== undefined;
-  const pendingClaimsCount = item.pending_claims_count || 0;
 
   const handleClaimSubmit = async () => {
-    if (!currentUserId) return;
-
+    if (!session?.user) return;
     try {
       const response = await fetch("/api/claims", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           itemId: item.itemid,
-          userId: currentUserId,
+          claimerId: session.user.id,
           claimText,
         }),
       });
@@ -81,13 +77,20 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
         setIsClaiming(false);
         setClaimText("");
         router.refresh();
+        enqueueSnackbar("Claim submitted successfully!", {
+          variant: "success",
+        });
       } else {
         const error = await response.json();
-        alert(error.error || "Failed to submit claim");
+        enqueueSnackbar(`Claim submission failed: ${error.message}`, {
+          variant: "error",
+        });
       }
     } catch (error) {
       console.error("Claim submission failed", error);
-      alert("Failed to submit claim");
+      enqueueSnackbar("Claim submission failed. Please try again.", {
+        variant: "error",
+      });
     }
   };
 
@@ -119,25 +122,6 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
             >
               {item.status === "OPEN" ? "Open" : "Resolved"}
             </Badge>
-
-            {/* User's Claim Status Badge */}
-            {hasClaim && (
-              <Badge
-                className={`${
-                  item.claim_status === "PENDING"
-                    ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                    : item.claim_status === "ACCEPTED"
-                    ? "bg-green-100 text-green-700 hover:bg-green-200"
-                    : "bg-red-100 text-red-700 hover:bg-red-200"
-                }`}
-              >
-                {item.claim_status === "PENDING"
-                  ? "Your Claim Pending"
-                  : item.claim_status === "ACCEPTED"
-                  ? "Your Claim Accepted"
-                  : "Your Claim Rejected"}
-              </Badge>
-            )}
           </div>
 
           {item.image ? (
@@ -239,18 +223,9 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
                 Comments
               </Button>
 
-              {/* Claims Management for Owner */}
-              {isOwner && pendingClaimsCount > 0 && (
-                <ClaimsDialog
-                  itemId={item.itemid}
-                  ownerId={item.reportedby}
-                  itemName={item.name}
-                  claimsCount={pendingClaimsCount}
-                />
-              )}
-
               {/* Claim Button for Non-owners */}
-              {item.status === "OPEN" && !isOwner && !hasClaim && (
+              {item.status === "OPEN" && !isOwner && (
+                //  && !hasClaim
                 <Button
                   size="sm"
                   variant="outline"
@@ -304,6 +279,7 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
                 onClick={() => {
                   setIsClaiming(false);
                   setClaimText("");
+                  handleClaimSubmit();
                 }}
               >
                 Cancel

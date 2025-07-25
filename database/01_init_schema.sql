@@ -76,5 +76,7 @@ CREATE INDEX idx_comments_user ON comments(userid);
 
 
 SELECT * FROM users;
+SELECT * FROM claims;
+SELECT * FROM items;
 -- SELECT * FROM comments;
 -- DELETE FROM items;
