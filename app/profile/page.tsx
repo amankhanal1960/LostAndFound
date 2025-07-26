@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
   Select,
@@ -17,21 +15,17 @@ import {
 } from "@/components/ui/select";
 import { ItemCard } from "@/components/ui/item-card";
 import { ClaimCard } from "@/components/ui/claim-card";
+import { ClaimsOnMyItemCard } from "@/components/ui/claims-on-my-items-card";
 import { SkeletonItemCard } from "@/components/ui/skeleton";
 import { SkeletonClaimCard } from "@/components/ui/skeleton";
-
 import {
   Calendar,
   MessageSquare,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
   TrendingUp,
   Award,
   Share2,
   Settings,
   Mail,
-  User,
   Loader2,
 } from "lucide-react";
 import Header from "@/components/header";
@@ -75,36 +69,6 @@ interface ClaimForMyItem {
   claimer_image: string | null;
 }
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "OPEN":
-    case "PENDING":
-      return "bg-blue-100 text-blue-800";
-    case "RESOLVED":
-    case "ACCEPTED":
-      return "bg-green-100 text-green-800";
-    case "REJECTED":
-      return "bg-red-100 text-red-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
-
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case "OPEN":
-    case "PENDING":
-      return <AlertCircle className="h-4 w-4" />;
-    case "RESOLVED":
-    case "ACCEPTED":
-      return <CheckCircle className="h-4 w-4" />;
-    case "REJECTED":
-      return <XCircle className="h-4 w-4" />;
-    default:
-      return <AlertCircle className="h-4 w-4" />;
-  }
-};
-
 export default function ProfilePage() {
   const [limit] = useState(10);
   const [offset, setOffset] = useState(0);
@@ -127,14 +91,20 @@ export default function ProfilePage() {
   const fetchUserData = useCallback(async () => {
     setLoading(true);
     try {
-      const [itemsRes, claimsRes] = await Promise.all([
+      const [itemsRes, claimsRes, claimsOnMyItemsRes] = await Promise.all([
         fetch(
           `/api/items/browse/myItems?limit=${limit}&offset=${offset}&reportedby=${session?.user?.id}`
         ),
         fetch(`/api/claims?limit=${limit}&offset=${offset}`),
+        fetch(`/api/claims-on-my-items?limit=${limit}&offset=${offset}`),
       ]);
 
-      if (!itemsRes || !claimsRes) {
+      if (!itemsRes || !claimsRes || !claimsOnMyItemsRes) {
+        console.error({
+          items: itemsRes.status,
+          claims: claimsRes.status,
+          claimsOnMine: claimsOnMyItemsRes.status,
+        });
         throw new Error("One of the request failed");
       }
 
@@ -145,12 +115,14 @@ export default function ProfilePage() {
 
       const claims = await claimsRes.json();
 
+      const claimsOnMyItems = await claimsOnMyItemsRes.json();
+
       setMyItems((prev) =>
         offset === 0 ? fetchedItems : [...prev, ...fetchedItems]
       );
       setClaims(claims.claims || []);
 
-      setClaimsForMyItems(claims.claims || []);
+      setClaimsForMyItems(claimsOnMyItems.claims || []);
 
       // Check if there are more items to load
       setHasMore(fetchedItems.length === limit);
@@ -178,51 +150,6 @@ export default function ProfilePage() {
     if (filterStatus === "all") return true;
     return claim.status.toLowerCase() === filterStatus.toLowerCase();
   });
-
-  const ClaimsOnMyItemsCard = ({ claim }: { claim: ClaimForMyItem }) => (
-    <Card className="group hover:shadow-lg transition-all duration-200 border border-gray-200">
-      <CardContent className="p-4">
-        <div className="flex items-start gap-4">
-          {claim.claimer_image ? (
-            <Image
-              src={claim.claimer_image || "/placeholder.svg"}
-              alt={claim.claimer_name}
-              width={48}
-              height={48}
-              className="rounded-full"
-            />
-          ) : (
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <User className="h-6 w-6 text-blue-600" />
-            </div>
-          )}
-
-          <div className="flex-1">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <h3 className="font-semibold">{claim.claimer_name}</h3>
-                <p className="text-sm text-gray-600">
-                  claimed &quot;{claim.item_name}&quot;
-                </p>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <Calendar className="h-3 w-3" />
-                  {new Date(claim.claimedat).toLocaleDateString()}
-                </div>
-              </div>
-              <Badge className={getStatusColor(claim.status)}>
-                {getStatusIcon(claim.status)}
-                <span className="ml-1 capitalize">{claim.status}</span>
-              </Badge>
-            </div>
-
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-700">{claim.claimtext}</p>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -435,22 +362,33 @@ export default function ProfilePage() {
             </TabsContent>
 
             <TabsContent value="claims-on-items" className="space-y-4">
-              {claimsForMyItems.length === 0 ? (
+              {loading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {Array.from({ length: limit }).map((_, i) => (
+                    <SkeletonClaimCard key={i} />
+                  ))}
+                </div>
+              ) : claimsForMyItems.length === 0 ? (
                 <Card className="p-12 text-center">
                   <div className="text-gray-400 mb-4">
-                    <MessageSquare className="h-16 w-16 mx-auto" />
+                    <Award className="h-16 w-16 mx-auto" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     No Claims on Your Items
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    No one has claimed your items yet.
+                    Your items have not been claimed yet.
                   </p>
+                  <Button className="bg-green-600 hover:bg-green-700">
+                    Browse Items
+                  </Button>
                 </Card>
               ) : (
-                claimsForMyItems.map((claim) => (
-                  <ClaimsOnMyItemsCard key={claim.claimid} claim={claim} />
-                ))
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {claimsForMyItems.map((claim) => (
+                    <ClaimsOnMyItemCard key={claim.claimid} claim={claim} />
+                  ))}
+                </div>
               )}
             </TabsContent>
           </Tabs>
