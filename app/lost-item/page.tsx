@@ -16,9 +16,11 @@ import { Search, Filter, Eye, Loader2 } from "lucide-react";
 import Header from "@/components/header";
 import { ItemCard } from "@/components/ui/item-card";
 import { useSession } from "next-auth/react";
+import { SkeletonItemCard } from "@/components/ui/skeleton";
 
 interface Item {
   itemid: number;
+  userid: number;
   name: string;
   description: string | null;
 
@@ -30,6 +32,7 @@ interface Item {
   reportedat: string;
   updatedat: string;
   status: "OPEN" | "RESOLVED";
+  type: "lost" | "found";
   location: string | null;
   category: string | null;
   contactnumber: string | null;
@@ -312,9 +315,10 @@ export default function FoundItemsPage() {
         {/* Items Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {loading && offset === 0 ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              <span className="ml-2 text-gray-600">Loading items...</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: limit }).map((_, i) => (
+                <SkeletonItemCard key={i} />
+              ))}
             </div>
           ) : filteredItems.length === 0 ? (
             <div className="text-center py-12">
@@ -337,7 +341,7 @@ export default function FoundItemsPage() {
                   <ItemCard
                     key={item.itemid}
                     item={item}
-                    variant="lost"
+                    type="lost"
                     currentUserId={currentUserId}
                   />
                 ))}

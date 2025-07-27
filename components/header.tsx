@@ -80,8 +80,13 @@ export default function Header() {
     { icon: Home, label: "Dashboard", href: "/dashboard", active: true },
     { icon: Plus, label: "Report Lost Item", href: "/report-item" },
     { icon: List, label: "All Lost Items", href: "/lost-item" },
-    { icon: User, label: "My Reports", href: "/my-reports" },
-    { icon: MessageSquare, label: "My Claims", href: "/my-claims" },
+    { icon: User, label: "My Reports", href: "/profile?tab=my-items" },
+    { icon: MessageSquare, label: "My Claims", href: "/profile?tab=claims" },
+    {
+      icon: MessageSquare,
+      label: "Claims On My Items",
+      href: "/profile?tab=claims-on-items",
+    },
     { icon: Settings, label: "Settings", href: "/settings" },
   ];
 
