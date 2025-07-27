@@ -19,17 +19,17 @@ import { useSession } from "next-auth/react";
 
 interface Item {
   itemid: number;
+  userid: number;
   name: string;
   description: string | null;
-
   image: string | null;
   reportedby: number;
   reporter_name: string;
   reporter_image: string | null;
-
   reportedat: string;
   updatedat: string;
   status: "OPEN" | "RESOLVED";
+  type: "lost" | "found";
   location: string | null;
   category: string | null;
   contactnumber: string | null;
@@ -338,7 +338,7 @@ export default function FoundItemsPage() {
                   <ItemCard
                     key={item.itemid}
                     item={item}
-                    variant="found"
+                    type="found"
                     currentUserId={currentUserId}
                   />
                 ))}

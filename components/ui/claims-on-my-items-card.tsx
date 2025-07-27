@@ -22,7 +22,8 @@ interface ClaimOnMyItem {
   claimerid: number;
   claimtext: string;
   claimedat: string;
-  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  itemStatus: "OPEN" | "RESOLVED";
+  claimStatus: "PENDING" | "ACCEPTED" | "REJECTED";
   name: string;
   image: string | null;
   type: "LOST" | "FOUND";
@@ -66,7 +67,7 @@ export function ClaimsOnMyItemCard({
   onStatusUpdate,
 }: ClaimsOnMyItemCardProps) {
   const [isUpdating, setIsUpdating] = useState(false);
-  const [currentStatus, setCurrentStatus] = useState(claim.status);
+  const [currentStatus, setCurrentStatus] = useState(claim.claimStatus);
   const { enqueueSnackbar } = useSnackbar();
 
   const handleStatusChange = async (newStatus: "ACCEPTED" | "REJECTED") => {
@@ -127,7 +128,16 @@ export function ClaimsOnMyItemCard({
               {claim.type === "FOUND" ? "Found" : "Lost"}
             </Badge>
           </div>
-          <div className="absolute top-1 right-1 z-10">
+          <div className="absolute top-1 right-1 z-10 flex space-x-1">
+            <Badge
+              className={
+                claim.itemStatus === "OPEN"
+                  ? "bg-gray-100 text-gray-700"
+                  : "bg-green-100 text-green-700"
+              }
+            >
+              {claim.itemStatus.toLowerCase()}
+            </Badge>
             <Badge className={getStatusColor(currentStatus)}>
               {getStatusIcon(currentStatus)}
               <span className="ml-1 capitalize">

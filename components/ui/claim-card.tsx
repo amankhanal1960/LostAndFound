@@ -8,11 +8,11 @@ import { CommentsPopup } from "./commentPopup";
 
 import {
   Calendar,
-  Package,
   CheckCircle,
   XCircle,
   AlertCircle,
   MessageCircle,
+  Eye,
 } from "lucide-react";
 
 interface Claim {
@@ -21,7 +21,9 @@ interface Claim {
   claimerid: number;
   claimtext: string;
   claimedat: string;
-  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  itemStatus: "OPEN" | "RESOLVED";
+  claimStatus: "PENDING" | "ACCEPTED" | "REJECTED";
+  type: "lost" | "found";
   name: string;
   image: string | null;
 }
@@ -33,13 +35,13 @@ interface ClaimCardProps {
 const getStatusColor = (status: string) => {
   switch (status) {
     case "PENDING":
-      return "bg-blue-100 text-blue-800";
+      return "bg-yellow-100 text-yellow-700 hover:bg-yellow-200";
     case "ACCEPTED":
-      return "bg-green-100 text-green-800";
+      return "bg-green-100 text-green-700 hover:bg-green-200";
     case "REJECTED":
-      return "bg-red-100 text-red-800";
+      return "bg-red-100 text-red-700 hover:bg-red-200";
     default:
-      return "bg-gray-100 text-gray-800";
+      return "bg-gray-100 text-gray-700 hover:bg-gray-200";
   }
 };
 
@@ -57,7 +59,6 @@ const getStatusIcon = (status: string) => {
 };
 
 export function ClaimCard({ claim }: ClaimCardProps) {
-  const [imageError, setImageError] = useState(false);
   const [isCommentsOpen, setCommentsOpen] = useState(false);
 
   const formatDate = (dateString: string) => {
@@ -72,29 +73,47 @@ export function ClaimCard({ claim }: ClaimCardProps) {
     <Card className="group hover:shadow-lg transition-all duration-200 border border-gray-200 overflow-hidden p-0">
       <div className="relative">
         {/* Image */}
-        <div className="relative h-48 bg-gray-100">
-          {claim.image && !imageError ? (
+        <div className="relative h-52 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden rounded-t-lg">
+          <div className="absolute top-1 left-1 z-10">
+            <Badge
+              className={
+                claim.type === "found"
+                  ? "bg-green-100 text-green-700 hover:bg-green-200"
+                  : "bg-red-100 text-red-700 hover:bg-red-200"
+              }
+            >
+              {claim.type === "found" ? "Found" : "Lost"}
+            </Badge>
+          </div>
+          <div className="absolute top-1 right-1 z-10 flex space-x-1">
+            <Badge
+              className={
+                claim.itemStatus === "OPEN"
+                  ? "bg-gray-100 text-gray-700"
+                  : "bg-green-100 text-green-700"
+              }
+            >
+              {claim.itemStatus.toLowerCase()}
+            </Badge>
+            <Badge className={getStatusColor(claim.claimStatus)}>
+              {getStatusIcon(claim.claimStatus)}
+              <span className="ml-1 capitalize">
+                {claim.claimStatus.toLowerCase()}
+              </span>
+            </Badge>
+          </div>
+          {claim.image ? (
             <Image
               src={claim.image || "/placeholder.svg"}
-              alt={claim.name}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-200"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              onError={() => setImageError(true)}
+              alt={claim.name}
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">
-              <Package className="h-12 w-12" />
+              <Eye className="h-12 w-12" />
             </div>
           )}
-        </div>
-
-        {/* Status Badge */}
-        <div className="absolute top-3 right-3">
-          <Badge className={getStatusColor(claim.status)}>
-            {getStatusIcon(claim.status)}
-            <span className="ml-1 capitalize">{claim.status}</span>
-          </Badge>
         </div>
       </div>
 
@@ -104,13 +123,12 @@ export function ClaimCard({ claim }: ClaimCardProps) {
           <h3 className="font-semibold text-lg text-gray-900 mb-1 line-clamp-1">
             {claim.name}
           </h3>
+          <Badge variant="outline" className="text-xs">
+            Claim message
+          </Badge>
         </div>
 
-        {/* Claim Text */}
         <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">
-            Claim message
-          </p>
           <div className="bg-gray-50 p-2 rounded-lg border border-gray-200">
             <p className="text-base text-gray-800 leading-relaxed">
               {claim.claimtext}

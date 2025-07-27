@@ -35,17 +35,16 @@ export interface Item {
   location: string | null;
   category: string | null;
   contactnumber: string | null;
-  claim_status?: "PENDING" | "ACCEPTED" | "REJECTED" | null;
-  claim_id?: number | null;
+  type: string;
 }
 
 interface ItemCardProps {
+  type: string;
   item: Item;
-  variant: "found" | "lost";
   currentUserId?: number | null;
 }
 
-export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
+export const ItemCard = ({ item, type, currentUserId }: ItemCardProps) => {
   const [isCommentsOpen, setCommentsOpen] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [claimText, setClaimText] = useState("");
@@ -94,6 +93,8 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
     }
   };
 
+  // console.log("type:", type);
+
   return (
     <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm p-0">
       <CardContent className="p-0">
@@ -102,12 +103,12 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
           <div className="absolute top-1 left-1 z-10">
             <Badge
               className={`${
-                variant === "found"
+                type === "found"
                   ? "bg-green-100 text-green-700 hover:bg-green-200"
                   : "bg-red-100 text-red-700 hover:bg-red-200"
               }`}
             >
-              {variant === "found" ? "Found" : "Lost"}
+              {type === "found" ? "Found" : "Lost"}
             </Badge>
           </div>
 
@@ -232,7 +233,7 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
                   className="flex-1 bg-transparent"
                   onClick={() => setIsClaiming(true)}
                 >
-                  {variant === "found" ? "Claim Item" : "I Found This"}
+                  {type === "found" ? "Claim Item" : "I Found This"}
                 </Button>
               )}
             </div>
@@ -254,12 +255,12 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
             <h3 className="font-semibold mb-4">
-              {variant === "found"
+              {type === "found"
                 ? `Claim "${item.name}"`
                 : `Report Found: "${item.name}"`}
             </h3>
             <p className="text-sm text-gray-600 mb-4">
-              {variant === "found"
+              {type === "found"
                 ? "Explain why this item belongs to you and provide details to verify ownership."
                 : "Explain how you found this item and provide details about when and where."}
             </p>
@@ -267,7 +268,7 @@ export const ItemCard = ({ item, variant, currentUserId }: ItemCardProps) => {
               value={claimText}
               onChange={(e) => setClaimText(e.target.value)}
               placeholder={
-                variant === "found"
+                type === "found"
                   ? "Describe the item details, when you lost it, where, and any identifying features..."
                   : "Describe when and where you found this item, its condition, and any other relevant details..."
               }

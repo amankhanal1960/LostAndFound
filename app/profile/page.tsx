@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -42,7 +43,6 @@ interface MyItems {
   status: "OPEN" | "RESOLVED";
   location: string | null;
   category: string | null;
-  pending_claims_count?: number;
 }
 
 interface MyClaim {
@@ -52,7 +52,7 @@ interface MyClaim {
   claimedat: string;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   item_name: string;
-  item_type: "LOST" | "FOUND";
+  type: "LOST" | "FOUND";
   item_image: string | null;
 }
 
@@ -64,17 +64,18 @@ interface ClaimForMyItem {
   claimedat: string;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   item_name: string;
-  item_type: "LOST" | "FOUND";
+  type: "LOST" | "FOUND";
   claimer_name: string;
   claimer_image: string | null;
 }
 
 export default function ProfilePage() {
+  const router = useRouter();
+  const params = useSearchParams();
+
   const [limit] = useState(10);
   const [offset, setOffset] = useState(0);
   const { data: session } = useSession();
-  //which of the three tabs is visible
-  const [activeTab, setActiveTab] = useState("reports");
   //controls the dropdown filter (all, open, pending, resolved, accepted, rejected)
   const [filterStatus, setFilterStatus] = useState("all");
   //the claims the user has made on ohters items
@@ -87,6 +88,18 @@ export default function ProfilePage() {
   );
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
+
+  const initialTab = params.get("tab") ?? "my-items";
+
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // whenever activeTab changes, update the URL
+  useEffect(() => {
+    // avoid pushing if it’s already the same
+    if (params.get("tab") !== activeTab) {
+      router.replace(`${window.location.pathname}?tab=${activeTab}`);
+    }
+  }, [activeTab, params, router]);
 
   const fetchUserData = useCallback(async () => {
     setLoading(true);
@@ -116,6 +129,8 @@ export default function ProfilePage() {
       const claims = await claimsRes.json();
 
       const claimsOnMyItems = await claimsOnMyItemsRes.json();
+
+      console.log("Fetched Items:", claimsOnMyItems);
 
       setMyItems((prev) =>
         offset === 0 ? fetchedItems : [...prev, ...fetchedItems]
@@ -218,9 +233,9 @@ export default function ProfilePage() {
             <div className="flex items-center justify-between mb-6">
               <div className="grid grid-cols-3 border border-gray-300 rounded-lg overflow-hidden">
                 <button
-                  onClick={() => setActiveTab("reports")}
+                  onClick={() => setActiveTab("my-items")}
                   className={`flex items-center justify-center px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                    activeTab === "reports"
+                    activeTab === "my-items"
                       ? "bg-blue-600 text-white"
                       : "bg-white text-gray-700 hover:bg-gray-100"
                   }`}
@@ -266,7 +281,7 @@ export default function ProfilePage() {
               </Select>
             </div>
 
-            <TabsContent value="reports" className="space-y-4">
+            <TabsContent value="my-items" className="space-y-4">
               {loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({ length: limit }).map((_, i) => (
@@ -295,7 +310,7 @@ export default function ProfilePage() {
                       <ItemCard
                         key={item.itemid}
                         item={item}
-                        variant={item.type === "FOUND" ? "found" : "lost"}
+                        type={item.type === "FOUND" ? "found" : "lost"}
                         currentUserId={
                           session?.user?.id
                             ? Number(session.user.id)
@@ -355,7 +370,11 @@ export default function ProfilePage() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredClaims.map((claim) => (
-                    <ClaimCard key={claim.claimid} claim={claim} />
+                    <ClaimCard
+                      key={claim.claimid}
+                      type={claim.type === "FOUND" ? "found" : "lost"}
+                      claim={claim}
+                    />
                   ))}
                 </div>
               )}
@@ -386,7 +405,11 @@ export default function ProfilePage() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {claimsForMyItems.map((claim) => (
-                    <ClaimsOnMyItemCard key={claim.claimid} claim={claim} />
+                    <ClaimsOnMyItemCard
+                      key={claim.claimid}
+                      item_type={claim.type === "FOUND" ? "found" : "lost"}
+                      claim={claim}
+                    />
                   ))}
                 </div>
               )}

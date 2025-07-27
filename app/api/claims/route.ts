@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
     const offset = parseInt(url.searchParams.get("offset") || "0", 10);
 
     const { rows } = await query(
-      `SELECT claims.claimid, claims.itemid, claims.claimerid, claims.claimtext, claims.claimedat, claims.status, items.name, items.image
+      `SELECT claims.claimid, claims.itemid, claims.claimerid, claims.claimtext, claims.claimedat, claims.status AS "claimStatus", items.status AS "itemStatus", claims.status, items.name, items.image, items.type
       FROM claims JOIN items on items.itemid = claims.itemid
       WHERE claims.claimerid = $1
       ORDER BY claims.claimedat DESC
