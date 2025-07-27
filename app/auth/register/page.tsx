@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSnackbar } from "notistack";
+import useSound from "use-sound";
 
 import {
   Card,
@@ -28,6 +29,10 @@ export default function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
+
+  const [playSuccess] = useSound("/success.mp3");
+  const [playError] = useSound("/error.mp3");
+
   const [form, setForm] = useState({ name: "", email: "", password: "" });
 
   //async function
@@ -56,12 +61,14 @@ export default function SignupForm() {
       //reads the error message returned by the server and updates the error state so you ca ndisplay the message in the UI
       setError(data.message);
       enqueueSnackbar("Signup failed!", { variant: "error" });
+      playError();
       setIsSubmitting(false);
 
       return;
     }
 
     enqueueSnackbar("Signup successful! ", { variant: "success" });
+    playSuccess();
     router.push("/auth/login");
     setIsSubmitting(false);
   }

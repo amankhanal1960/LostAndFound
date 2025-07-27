@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn } from "next-auth/react";
 import { useSnackbar } from "notistack";
+import useSound from "use-sound";
 
 import {
   Card,
@@ -33,6 +34,9 @@ export default function LoginForm() {
 
   const { enqueueSnackbar } = useSnackbar();
 
+  const [playError] = useSound("/error.mp3");
+  const [playSuccess] = useSound("/success-trumpets.mp3");
+
   async function onSubmit(e: React.FormEvent) {
     //stops the browser from reloading on form submit
     e.preventDefault();
@@ -45,6 +49,7 @@ export default function LoginForm() {
       enqueueSnackbar("Please enter both Email and Password.", {
         variant: "error",
       });
+      playError();
       return;
     }
 
@@ -60,11 +65,13 @@ export default function LoginForm() {
     if (result?.error) {
       seterror("Invalid email or password");
       enqueueSnackbar("Login Failed!", { variant: "error" });
+      playError();
       setIsSubmitting(false);
 
       return;
     } else {
       enqueueSnackbar("Login Successful! ", { variant: "success" });
+      playSuccess();
       router.push("/dashboard"); // Redirect after successful login
       setIsSubmitting(false);
     }

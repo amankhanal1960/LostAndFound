@@ -12,6 +12,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Reply, Send } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useSnackbar } from "notistack";
+import useSound from "use-sound";
 
 interface Comment {
   commentid: string;
@@ -37,6 +39,9 @@ function CommentItem({ comment, itemId, onReplyAdded }: CommentItemProps) {
   const [replyText, setReplyText] = useState("");
   const { data: session } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
+  const [playSuccess] = useSound("/success.mp3");
+  const [playError] = useSound("/error.mp3");
 
   const handleReply = async () => {
     if (!replyText.trim() || !itemId || !session?.user) return;
@@ -56,9 +61,17 @@ function CommentItem({ comment, itemId, onReplyAdded }: CommentItemProps) {
         setReplyText("");
         setIsReplying(false);
         onReplyAdded?.();
+        enqueueSnackbar("Reply added successfully", {
+          variant: "success",
+        });
+        playSuccess();
       }
     } catch (error) {
       console.error("Failed to add reply:", error);
+      enqueueSnackbar("Failed to add reply", {
+        variant: "error",
+      });
+      playError();
     } finally {
       setIsSubmitting(false);
     }
@@ -156,6 +169,9 @@ export function CommentsPopup({
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
+  const [playSuccess] = useSound("/success.mp3");
+  const [playError] = useSound("/error.mp3");
 
   const fetchComments = useCallback(async () => {
     try {
@@ -192,9 +208,13 @@ export function CommentsPopup({
       if (response.ok) {
         setNewComment("");
         fetchComments();
+        enqueueSnackbar("Comment added successfully", { variant: "success" });
+        playSuccess();
       }
     } catch (error) {
       console.error("Failed to add comment:", error);
+      enqueueSnackbar("Failed to add comment", { variant: "error" });
+      playError();
     } finally {
       setIsSubmitting(false);
     }
