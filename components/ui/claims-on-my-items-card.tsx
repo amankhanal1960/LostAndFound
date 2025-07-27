@@ -74,17 +74,14 @@ export function ClaimsOnMyItemCard({
     setIsUpdating(true);
 
     try {
-      const response = await fetch(`/api/claims/${claim.claimid}/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status: newStatus,
-          itemId: claim.itemid,
-        }),
-      });
-
+      const response = await fetch(
+        `/api/claims-on-my-items/${claim.claimid}/status`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus, itemId: claim.itemid }),
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to update claim status");
       }

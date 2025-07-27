@@ -5,11 +5,9 @@ import { query } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
-    debugger;
     const { itemId, claimerId, claimText } = await req.json();
 
     if (!itemId || !claimerId || !claimText) {
-      debugger;
       console.log("Missing fields:", { itemId, claimerId, claimText });
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
