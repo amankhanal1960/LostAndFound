@@ -1,4 +1,7 @@
+// app/api/items/[itemId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/config/auth";
 import { query } from "@/lib/db";
 
 export async function DELETE(
@@ -6,33 +9,37 @@ export async function DELETE(
   { params }: { params: { itemId: string } }
 ) {
   const { itemId } = await params;
+  // 1) Get the user session
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+  const userId = session?.user?.id;
 
-  try {
-    // Attempt to delete the item by ID; if you have FK constraints
-    // on related tables (lost/found), they’ll cascade or error appropriately.
-    const { rowCount } = await query(
-      `DELETE FROM items
-       WHERE itemid = $1
-       RETURNING itemid`,
-      [itemId]
-    );
+  // 2) Fetch the item owner from DB
+  const { rows } = await query(
+    `SELECT reportedby FROM items WHERE itemid = $1`,
+    [itemId]
+  );
+  if (rows.length === 0) {
+    return NextResponse.json({ error: "Item not found" }, { status: 404 });
+  }
+  const ownerId = rows[0].reportedby;
 
-    if (rowCount === 0) {
-      return NextResponse.json(
-        { error: `No item found with id ${itemId}` },
-        { status: 404 }
-      );
-    }
-
+  // 3) Authorize
+  if (ownerId !== userId) {
     return NextResponse.json(
-      { message: `Item ${itemId} deleted successfully.` },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Error deleting item:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
+      { error: "You do not have permission to delete this item." },
+      { status: 403 }
     );
   }
+
+  // 4) Safe to delete
+  const { rowCount } = await query(`DELETE FROM items WHERE itemid = $1`, [
+    itemId,
+  ]);
+  return NextResponse.json(
+    { message: `Item ${params.itemId} deleted.` },
+    { status: rowCount ? 200 : 404 }
+  );
 }

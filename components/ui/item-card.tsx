@@ -99,6 +99,13 @@ export const ItemCard = ({ item, type, currentUserId }: ItemCardProps) => {
         method: "DELETE",
       });
 
+      if (response.status === 403) {
+        // custom unauthorized message
+        const body = await response.json();
+        enqueueSnackbar(body.error, { variant: "warning" });
+        return;
+      }
+
       if (response.ok) {
         enqueueSnackbar("Item deleted successfully!", { variant: "success" });
         router.refresh();
