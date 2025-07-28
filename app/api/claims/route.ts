@@ -43,10 +43,23 @@ export async function GET(req: NextRequest) {
     const offset = parseInt(url.searchParams.get("offset") || "0", 10);
 
     const { rows } = await query(
-      `SELECT claims.claimid, claims.itemid, claims.claimerid, claims.claimtext, claims.claimedat, claims.status AS "claimStatus", items.status AS "itemStatus", claims.status, items.name, items.image, items.type
-      FROM claims JOIN items on items.itemid = claims.itemid
-      WHERE claims.claimerid = $1
-      ORDER BY claims.claimedat DESC
+      `SELECT c.claimid,
+       c.itemid,
+       c.claimerid,
+       c.claimtext,
+       c.claimedat,
+       c.status AS "claimStatus",
+       i.status AS "itemStatus",
+       c.status,
+       i.name,
+       i.image,
+       i.type,
+       u.fullname AS "claimer_name",
+       u.image AS claimer_image
+      FROM claims AS c JOIN items AS i on i.itemid = c.itemid
+      JOIN users AS u ON u.userid = c.claimerid
+      WHERE c.claimerid = $1
+      ORDER BY c.claimedat DESC
       LIMIT $2 OFFSET $3 `,
       [userId, limit, offset]
     );

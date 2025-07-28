@@ -24,8 +24,8 @@ export default function DashboardPage() {
   if (status === "loading" || !session) {
     return null;
   }
-
   const user = session?.user;
+
   const userName = user?.name ?? "Guest";
   const userImage = user?.image ?? "/placeholder.svg?height=32&width=32";
 

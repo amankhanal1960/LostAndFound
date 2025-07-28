@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CommentsPopup } from "./commentPopup";
+import Link from "next/link";
 
 import {
   Calendar,
@@ -13,6 +14,8 @@ import {
   AlertCircle,
   MessageCircle,
   Eye,
+  Clock,
+  User,
 } from "lucide-react";
 
 interface Claim {
@@ -23,9 +26,11 @@ interface Claim {
   claimedat: string;
   itemStatus: "OPEN" | "RESOLVED";
   claimStatus: "PENDING" | "ACCEPTED" | "REJECTED";
-  type: "lost" | "found";
+  type: "LOST" | "FOUND";
   name: string;
   image: string | null;
+  claimer_name: string;
+  claimer_image: string | null;
 }
 
 interface ClaimCardProps {
@@ -61,14 +66,6 @@ const getStatusIcon = (status: string) => {
 export function ClaimCard({ claim }: ClaimCardProps) {
   const [isCommentsOpen, setCommentsOpen] = useState(false);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
   return (
     <Card className="group hover:shadow-lg transition-all duration-200 border border-gray-200 overflow-hidden p-0">
       <div className="relative">
@@ -77,12 +74,12 @@ export function ClaimCard({ claim }: ClaimCardProps) {
           <div className="absolute top-1 left-1 z-10">
             <Badge
               className={
-                claim.type === "found"
+                claim.type === "FOUND"
                   ? "bg-green-100 text-green-700 hover:bg-green-200"
                   : "bg-red-100 text-red-700 hover:bg-red-200"
               }
             >
-              {claim.type === "found" ? "Found" : "Lost"}
+              {claim.type === "FOUND" ? "Found" : "Lost"}
             </Badge>
           </div>
           <div className="absolute top-1 right-1 z-10 flex space-x-1">
@@ -119,41 +116,74 @@ export function ClaimCard({ claim }: ClaimCardProps) {
 
       <CardContent className="p-4">
         {/* Title */}
-        <div className="mb-3">
-          <h3 className="font-semibold text-lg text-gray-900 mb-1 line-clamp-1">
-            {claim.name}
-          </h3>
-          <Badge variant="outline" className="text-xs">
-            Claim message
-          </Badge>
-        </div>
-
-        <div>
-          <div className="bg-gray-50 p-2 rounded-lg border border-gray-200">
-            <p className="text-base text-gray-800 leading-relaxed">
-              {claim.claimtext}
-            </p>
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <h3 className="font-semibold text-lg text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+              {claim.name}
+            </h3>
+            <Badge variant="outline" className="text-xs">
+              Claim message
+            </Badge>
           </div>
         </div>
 
+        <div className="bg-gray-50 p-3 rounded-lg mb-4">
+          <p className="text-gray-600 text-sm line-clamp-3 leading-relaxed">
+            {claim.claimtext}
+          </p>
+        </div>
+
         {/* Date */}
-        <div className="my-4">
-          <div className="flex items-center text-sm text-gray-500">
-            <Calendar className="h-4 w-4 mr-1 flex-shrink-0" />
-            <span>Claimed at: {formatDate(claim.claimedat)}</span>
+        <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">
+          <div className="flex items-center">
+            <Calendar className="h-4 w-4 mr-1 text-gray-400" />
+            <span>{new Date(claim.claimedat).toLocaleDateString()}</span>
+          </div>
+          <div className="flex items-center">
+            <Clock className="h-4 w-4 mr-1 text-gray-400" />
+            <span>{new Date(claim.claimedat).toLocaleTimeString()}</span>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <Button
-            size="sm"
-            className="flex-1 bg-blue-600 hover:bg-blue-700"
-            onClick={() => setCommentsOpen(true)}
-          >
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Comments
-          </Button>
+        <div className="border-t pt-4">
+          <div className="flex items-center justify-between mb-3">
+            <Link href="/profile">
+              <div className="flex items-center space-x-2">
+                {claim.claimer_image ? (
+                  <Image
+                    src={claim.claimer_image || "/placeholder.svg"}
+                    alt={claim.claimer_name}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <User className="h-4 w-4 text-blue-600" />
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium text-sm text-gray-900">
+                    {claim.claimer_name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Claimed {new Date(claim.claimedat).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            </Link>
+          </div>
+          <div className="flex space-x-2">
+            <Button
+              size="sm"
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              onClick={() => setCommentsOpen(true)}
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Comments
+            </Button>
+          </div>
         </div>
       </CardContent>
       {isCommentsOpen && (

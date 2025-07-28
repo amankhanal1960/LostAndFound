@@ -130,7 +130,7 @@ export default function ProfilePage() {
 
       const claimsOnMyItems = await claimsOnMyItemsRes.json();
 
-      console.log("Fetched Items:", claimsOnMyItems);
+      console.log("Fetched Items:", claims);
 
       setMyItems((prev) =>
         offset === 0 ? fetchedItems : [...prev, ...fetchedItems]
