@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CommentsPopup } from "./commentPopup";
 import { useSnackbar } from "notistack";
+import { DeleteMenu } from "./delete-menu";
 
 import {
   MapPin,
@@ -92,8 +93,11 @@ export const ItemCard = ({ item, type, currentUserId }: ItemCardProps) => {
       });
     }
   };
-
-  // console.log("type:", type);
+  const handleDelete = async () => {
+    // your delete-API call, then:
+    enqueueSnackbar("Item deleted", { variant: "success" });
+    router.refresh();
+  };
 
   return (
     <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-sm p-0">
@@ -183,33 +187,39 @@ export const ItemCard = ({ item, type, currentUserId }: ItemCardProps) => {
           </div>
 
           {/* Contact Info */}
-          <div className="border-t pt-4">
-            <div className="flex items-center justify-between mb-3">
-              <Link href="/profile">
-                <div className="flex items-center space-x-2">
-                  {item.reporter_image ? (
-                    <Image
-                      src={item.reporter_image || "/placeholder.svg"}
-                      alt={item.reporter_name}
-                      width={32}
-                      height={32}
-                      className="rounded-full"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-blue-600" />
+          <div>
+            <div className="border-t pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-3">
+                  <Link href="/profile">
+                    <div className="flex items-center space-x-2">
+                      {item.reporter_image ? (
+                        <Image
+                          src={item.reporter_image || "/placeholder.svg"}
+                          alt={item.reporter_name}
+                          width={32}
+                          height={32}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <User className="h-4 w-4 text-blue-600" />
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-medium text-sm text-gray-900">
+                          {item.reporter_name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Posted{" "}
+                          {new Date(item.reportedat).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                  )}
-                  <div>
-                    <p className="font-medium text-sm text-gray-900">
-                      {item.reporter_name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Posted {new Date(item.reportedat).toLocaleDateString()}
-                    </p>
-                  </div>
+                  </Link>
                 </div>
-              </Link>
+                <DeleteMenu onDelete={handleDelete} />
+              </div>
             </div>
 
             {/* Action Buttons */}
@@ -280,7 +290,6 @@ export const ItemCard = ({ item, type, currentUserId }: ItemCardProps) => {
                 onClick={() => {
                   setIsClaiming(false);
                   setClaimText("");
-                  handleClaimSubmit();
                 }}
               >
                 Cancel

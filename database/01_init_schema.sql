@@ -79,4 +79,5 @@ SELECT * FROM users;
 SELECT * FROM claims;
 SELECT * FROM items;
 -- SELECT * FROM comments;
--- DELETE FROM items;
+
+-- DELETE FROM items where name = 'iphone 15 pro max';

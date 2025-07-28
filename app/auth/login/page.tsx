@@ -35,7 +35,7 @@ export default function LoginForm() {
   const { enqueueSnackbar } = useSnackbar();
 
   const [playError] = useSound("/error.mp3");
-  const [playSuccess] = useSound("/success-trumpets.mp3");
+  const [playSuccess] = useSound("/success.mp3");
 
   async function onSubmit(e: React.FormEvent) {
     //stops the browser from reloading on form submit
@@ -70,8 +70,8 @@ export default function LoginForm() {
 
       return;
     } else {
-      enqueueSnackbar("Login Successful! ", { variant: "success" });
       playSuccess();
+      enqueueSnackbar("Login Successful! ", { variant: "success" });
       router.push("/dashboard"); // Redirect after successful login
       setIsSubmitting(false);
     }
