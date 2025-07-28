@@ -94,9 +94,22 @@ export const ItemCard = ({ item, type, currentUserId }: ItemCardProps) => {
     }
   };
   const handleDelete = async () => {
-    // your delete-API call, then:
-    enqueueSnackbar("Item deleted", { variant: "success" });
-    router.refresh();
+    try {
+      const response = await fetch(`/api/items/${item.itemid}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        enqueueSnackbar("Item deleted successfully!", { variant: "success" });
+        router.refresh();
+      } else {
+        const error = await response.json();
+        enqueueSnackbar(`Delete failed: ${error.error}`, { variant: "error" });
+      }
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      enqueueSnackbar("Delete failed. Please try again.", { variant: "error" });
+    }
   };
 
   return (
@@ -218,7 +231,10 @@ export const ItemCard = ({ item, type, currentUserId }: ItemCardProps) => {
                     </div>
                   </Link>
                 </div>
-                <DeleteMenu onDelete={handleDelete} />
+                <DeleteMenu
+                  onDelete={handleDelete}
+                  description="Are you sure you want to delete this item? This will delete the item and it's associated data as well. This action cannot be undone."
+                />
               </div>
             </div>
 

@@ -22,9 +22,10 @@ import { MoreHorizontal, Trash2 } from "lucide-react";
 
 interface DeleteMenuProps {
   onDelete(): void;
+  description?: string;
 }
 
-export function DeleteMenu({ onDelete }: DeleteMenuProps) {
+export function DeleteMenu({ onDelete, description }: DeleteMenuProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
@@ -51,10 +52,7 @@ export function DeleteMenu({ onDelete }: DeleteMenuProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              item report and all associated data.
-            </AlertDialogDescription>
+            <AlertDialogDescription>{description}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>

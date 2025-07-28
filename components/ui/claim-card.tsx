@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CommentsPopup } from "./commentPopup";
 import Link from "next/link";
+import { DeleteMenu } from "./delete-menu";
+import { useSnackbar } from "notistack";
 
 import {
   Calendar,
@@ -64,7 +67,30 @@ const getStatusIcon = (status: string) => {
 };
 
 export function ClaimCard({ claim }: ClaimCardProps) {
+  const router = useRouter();
+
+  const { enqueueSnackbar } = useSnackbar();
+
   const [isCommentsOpen, setCommentsOpen] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`/api/claims/${claim.claimid}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        enqueueSnackbar("claim deleted successfully!", { variant: "success" });
+        router.refresh();
+      } else {
+        const error = await response.json();
+        enqueueSnackbar(`Delete failed: ${error.error}`, { variant: "error" });
+      }
+    } catch (error) {
+      console.error("Error deleting claim:", error);
+      enqueueSnackbar("Delete failed. Please try again.", { variant: "error" });
+    }
+  };
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-200 border border-gray-200 overflow-hidden p-0">
@@ -173,7 +199,12 @@ export function ClaimCard({ claim }: ClaimCardProps) {
                 </div>
               </div>
             </Link>
+            <DeleteMenu
+              onDelete={handleDelete}
+              description="Are you sure you want to delete this claim? This will delete the claim and associated data as well. This action cannot be undone."
+            />
           </div>
+
           <div className="flex space-x-2">
             <Button
               size="sm"

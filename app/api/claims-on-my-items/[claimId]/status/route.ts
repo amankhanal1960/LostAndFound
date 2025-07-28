@@ -9,7 +9,7 @@ export async function PATCH(
 ) {
   // 1) Extract and parse the dynamic claimId
   const { params } = context;
-  const { claimId: rawClaimId } = await params; // must await
+  const { claimId: rawClaimId } = params;
   const claimId = Number(rawClaimId);
   if (Number.isNaN(claimId)) {
     return NextResponse.json({ error: "Invalid claim ID" }, { status: 400 });

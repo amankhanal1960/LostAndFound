@@ -30,6 +30,7 @@ import {
   Loader2,
 } from "lucide-react";
 import Header from "@/components/header";
+import Link from "next/link";
 
 // Types for real data
 interface MyItems {
@@ -299,9 +300,11 @@ export default function ProfilePage() {
                   <p className="text-gray-600 mb-4">
                     You haven&apos;t reported any items yet.
                   </p>
-                  <Button className="bg-blue-600 hover:bg-blue-700">
-                    Report Item
-                  </Button>
+                  <Link href="./report-item">
+                    <Button className="bg-blue-600 hover:bg-blue-700">
+                      Report Item
+                    </Button>
+                  </Link>
                 </Card>
               ) : (
                 <>
@@ -363,9 +366,11 @@ export default function ProfilePage() {
                   <p className="text-gray-600 mb-4">
                     You haven&apos;t made any claims yet.
                   </p>
-                  <Button className="bg-green-600 hover:bg-green-700">
-                    Browse Items
-                  </Button>
+                  <Link href="./found-item">
+                    <Button className="bg-green-600 hover:bg-green-700">
+                      Browse Items
+                    </Button>
+                  </Link>
                 </Card>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -398,9 +403,11 @@ export default function ProfilePage() {
                   <p className="text-gray-600 mb-4">
                     Your items have not been claimed yet.
                   </p>
-                  <Button className="bg-green-600 hover:bg-green-700">
-                    Browse Items
-                  </Button>
+                  <Link href="./found-item">
+                    <Button className="bg-green-600 hover:bg-green-700">
+                      Browse Items
+                    </Button>
+                  </Link>
                 </Card>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
