@@ -44,17 +44,29 @@ interface MyItems {
   status: "OPEN" | "RESOLVED";
   location: string | null;
   category: string | null;
+  userid: number;
+  reportedby: number;
+  reporter_name: string;
+  reporter_image: string | null;
+  contactnumber: string | null;
 }
 
 interface MyClaim {
   claimid: number;
   itemid: number;
   claimtext: string;
+  image: string | null;
   claimedat: string;
+  claimer_name: string;
+  claimer_image: string;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   item_name: string;
   type: "LOST" | "FOUND";
   item_image: string | null;
+  claimerid: number;
+  itemStatus: "OPEN" | "RESOLVED";
+  claimStatus: "PENDING" | "ACCEPTED" | "REJECTED";
+  name: string;
 }
 
 interface ClaimForMyItem {
@@ -68,6 +80,10 @@ interface ClaimForMyItem {
   type: "LOST" | "FOUND";
   claimer_name: string;
   claimer_image: string | null;
+  itemStatus: string;
+  claimStatus: string;
+  name: string;
+  image: string | null;
 }
 
 export default function ProfilePage() {

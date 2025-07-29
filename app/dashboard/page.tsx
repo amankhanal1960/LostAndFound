@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,20 +17,38 @@ import {
 import Header from "@/components/header";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
+import type { LucideIcon } from "lucide-react";
+
+interface DashboardStats {
+  reportedCount: number;
+  activeClaimsCount: number;
+  successfulReturnsCount: number;
+}
+
+interface SidebarItem {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+  active?: boolean;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [stats, setStats] = useState<DashboardStats>({
+    reportedCount: 0,
+    activeClaimsCount: 0,
+    successfulReturnsCount: 0,
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); // Fixed: should be boolean, not string
 
-  if (status === "loading" || !session) {
-    return null;
-  }
   const user = session?.user;
-
   const userName = user?.name ?? "Guest";
   const userImage = user?.image ?? "/placeholder.svg?height=32&width=32";
 
-  const sidebarItems = [
+  const sidebarItems: SidebarItem[] = [
     { icon: Home, label: "Dashboard", href: "/dashboard", active: true },
     { icon: Plus, label: "Report Lost Item", href: "/report-item" },
     { icon: List, label: "All Lost Items", href: "/lost-item" },
@@ -87,13 +106,164 @@ export default function DashboardPage() {
     </div>
   );
 
+  const StatsCard = ({
+    title,
+    value,
+    description,
+    icon: Icon,
+    color,
+    trend,
+  }: {
+    title: string;
+    value: number;
+    description: string;
+    icon: LucideIcon;
+    color: string;
+    trend?: string;
+  }) => (
+    <Card className="border-gray-200/60 shadow-sm hover:shadow-md transition-all duration-200 bg-white/90 backdrop-blur-sm">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 ${color} rounded-full`}></div>
+              <p className="text-sm font-medium text-gray-700">{title}</p>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{value}</p>
+            <p className="text-sm text-gray-600">{description}</p>
+            {trend && (
+              <div className="flex items-center space-x-1 text-xs text-green-600">
+                <ArrowUpRight className="h-3 w-3" />
+                <span>{trend}</span>
+              </div>
+            )}
+          </div>
+          <div
+            className={`p-4 ${color
+              .replace("bg-", "bg-")
+              .replace("-500", "-50")} rounded-xl border ${color
+              .replace("bg-", "border-")
+              .replace("-500", "-100")}`}
+          >
+            <Icon
+              className={`h-6 w-6 ${color
+                .replace("bg-", "text-")
+                .replace("-500", "-600")}`}
+            />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const QuickActionCard = ({
+    title,
+    description,
+    buttonText,
+    buttonColor,
+    icon: Icon,
+    iconColor,
+    onClick,
+  }: {
+    title: string;
+    description: string;
+    buttonText: string;
+    buttonColor: string;
+    icon: LucideIcon;
+    iconColor: string;
+    onClick: () => void;
+  }) => (
+    <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-gray-200/60 bg-white/90 backdrop-blur-sm hover:bg-white hover:border-gray-300">
+      <CardContent className="p-4 sm:p-6 md:p-8">
+        <div className="flex items-start space-x-4 sm:space-x-6">
+          <div
+            className={`p-3 sm:p-4 rounded-2xl bg-gradient-to-br ${iconColor} group-hover:scale-105 transition-transform duration-200`}
+          >
+            <Icon className="h-6 w-6 sm:h-7 sm:w-7" />
+          </div>
+          <div className="flex-1 space-y-3 sm:space-y-4">
+            <div>
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2">
+                {title}
+              </h3>
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                {description}
+              </p>
+            </div>
+            <Button
+              size="sm"
+              className={`${buttonColor} text-white shadow-sm`}
+              onClick={onClick}
+            >
+              {buttonText}
+              <ArrowUpRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  // Skeleton placeholder for stat cards
+  const SkeletonStatsCard = () => (
+    <Card className="animate-pulse border-gray-200/60 shadow-sm bg-white/90 backdrop-blur-sm">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-3 w-full">
+            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-8 bg-gray-200 rounded w-1/4 mt-2"></div>
+            <div className="h-3 bg-gray-200 rounded w-2/3 mt-2"></div>
+          </div>
+          <div className="p-4 bg-gray-200 rounded-xl w-12 h-12" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    async function loadStats() {
+      try {
+        setLoading(true); // Set loading to true at start
+        setError(null);
+
+        const res = await fetch("/api/dashboard/summary");
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch stats: ${res.status}`);
+        }
+
+        const json = await res.json();
+
+        setStats({
+          reportedCount: json.reportedCount || 0,
+          activeClaimsCount: json.activeClaimsCount || 0,
+          successfulReturnsCount: json.successfulReturnsCount || 0,
+        });
+      } catch (err) {
+        console.error("Error loading dashboard stats:", err);
+        setError(err instanceof Error ? err.message : "Failed to load stats");
+      } finally {
+        setLoading(false); // Always set loading to false in finally block
+      }
+    }
+
+    loadStats();
+  }, [status]);
+
+  // Unauthenticated state
+  if (!session) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       {/* Fixed Header */}
       <Header />
       <div className="flex pt-16">
         {/* Desktop Sidebar */}
-        <div className="hidden lg:block w-72  backdrop-blur-sm border-r border-gray-200/60">
+        <div className="hidden lg:block w-72 backdrop-blur-sm border-r border-gray-200/60">
           <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
             <SidebarContent />
           </div>
@@ -101,222 +271,117 @@ export default function DashboardPage() {
 
         {/* Main Content */}
         <main className="flex-1 lg:p-8 px-6 py-4 space-y-10 min-h-screen">
-          {/* Welcome Section - Blue theme only here */}
+          {/* Welcome Section */}
           <div className="py-4">
             <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-              Welcome back, <span className="text-blue-700">{userName} </span>
+              Welcome back, <span className="text-blue-700">{userName}</span>
             </h1>
-            <p className="text-lg max-w-2xl">
+            <p className="text-lg max-w-2xl text-gray-600">
               Ready to help reunite lost items with their owners?
             </p>
           </div>
 
+          {/* Error State */}
+          {error && (
+            <Card className="border-red-200 bg-red-50">
+              <CardContent className="p-4">
+                <p className="text-red-600">
+                  Error loading dashboard data: {error}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 bg-transparent"
+                  onClick={() => window.location.reload()}
+                >
+                  Retry
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="border-gray-200/60 shadow-sm hover:shadow-md transition-all duration-200 bg-white/90 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <p className="text-sm font-medium text-gray-700">
-                        My Reports
-                      </p>
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">5</p>
-                    <p className="text-sm text-gray-600">
-                      Items you&apos;ve reported
-                    </p>
-                    <div className="flex items-center space-x-1 text-xs text-green-600">
-                      <ArrowUpRight className="h-3 w-3" />
-                      <span>25% from last month</span>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                    <Plus className="h-6 w-6 text-blue-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-gray-200/60 shadow-sm hover:shadow-md transition-all duration-200 bg-white/90 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-                      <p className="text-sm font-medium text-gray-700">
-                        Active Claims
-                      </p>
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">3</p>
-                    <p className="text-sm text-gray-600">
-                      Items awaiting response
-                    </p>
-                  </div>
-                  <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
-                    <MessageSquare className="h-6 w-6 text-amber-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-gray-200/60 shadow-sm hover:shadow-md transition-all duration-200 bg-white/90 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <p className="text-sm font-medium text-gray-700">
-                        Successful Returns
-                      </p>
-                    </div>
-                    <p className="text-3xl font-bold text-gray-900">12</p>
-                    <p className="text-sm text-gray-600">
-                      Items successfully returned
-                    </p>
-                    <div className="flex items-center space-x-1 text-xs text-green-600">
-                      <ArrowUpRight className="h-3 w-3" />
-                      <span>15% from last month</span>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-green-50 rounded-xl border border-green-100">
-                    <TrendingUp className="h-6 w-6 text-green-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {loading ? (
+              [1, 2, 3].map((i) => <SkeletonStatsCard key={i} />)
+            ) : (
+              <>
+                <StatsCard
+                  title="My Reports"
+                  value={stats.reportedCount}
+                  description="Items you've reported"
+                  icon={Plus}
+                  color="bg-blue-500"
+                />
+                <StatsCard
+                  title="Active Claims"
+                  value={stats.activeClaimsCount}
+                  description="Items awaiting response"
+                  icon={MessageSquare}
+                  color="bg-amber-500"
+                />
+                <StatsCard
+                  title="Successful Returns"
+                  value={stats.successfulReturnsCount}
+                  description="Items successfully returned"
+                  icon={TrendingUp}
+                  color="bg-green-500"
+                />
+              </>
+            )}
           </div>
 
           {/* Quick Actions */}
           <div className="space-y-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Quick Actions
-            </h2>
-            <p className="text-gray-600 text-lg">
-              Get started with these common tasks
-            </p>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                Quick Actions
+              </h2>
+              <p className="text-gray-600 text-lg">
+                Get started with these common tasks!
+              </p>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-              {/* Card 1 */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-gray-200/60 bg-white/90 backdrop-blur-sm hover:bg-white hover:border-gray-300">
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <div className="flex items-start space-x-4 sm:space-x-6">
-                    <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 group-hover:scale-105 transition-transform duration-200">
-                      <Plus className="h-6 w-6 sm:h-7 sm:w-7 text-blue-600" />
-                    </div>
-                    <div className="flex-1 space-y-3 sm:space-y-4">
-                      <div>
-                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2">
-                          Report Item
-                        </h3>
-                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                          Lost or found something? Report it here and let the
-                          community know about it.
-                        </p>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
-                        onClick={() => router.push("/report-item")}
-                      >
-                        Report Now
-                        <ArrowUpRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <QuickActionCard
+                title="Report Item"
+                description="Lost or found something? Report it here and let the community know about it."
+                buttonText="Report Now"
+                buttonColor="bg-blue-600 hover:bg-blue-700"
+                icon={Plus}
+                iconColor="from-blue-50 to-blue-100 border-blue-200 text-blue-600"
+                onClick={() => router.push("/report-item")}
+              />
 
-              {/* Card 2 */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-gray-200/60 bg-white/90 backdrop-blur-sm hover:bg-white hover:border-gray-300">
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <div className="flex items-start space-x-4 sm:space-x-6">
-                    <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 border border-green-200 group-hover:scale-105 transition-transform duration-200">
-                      <Search className="h-6 w-6 sm:h-7 sm:w-7 text-green-600" />
-                    </div>
-                    <div className="flex-1 space-y-3 sm:space-y-4">
-                      <div>
-                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2">
-                          Browse Found Items
-                        </h3>
-                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                          Check if someone has found your lost item or help
-                          others by claiming found items.
-                        </p>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white shadow-sm"
-                        onClick={() => router.push("/found-item")}
-                      >
-                        Browse Items
-                        <ArrowUpRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <QuickActionCard
+                title="Browse Found Items"
+                description="Check if someone has found your lost item or help others by claiming found items."
+                buttonText="Browse Items"
+                buttonColor="bg-green-600 hover:bg-green-700"
+                icon={Search}
+                iconColor="from-green-50 to-green-100 border-green-200 text-green-600"
+                onClick={() => router.push("/found-item")}
+              />
 
-              {/* Card 3 */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-gray-200/60 bg-white/90 backdrop-blur-sm hover:bg-white hover:border-gray-300">
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <div className="flex items-start space-x-4 sm:space-x-6">
-                    <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 group-hover:scale-105 transition-transform duration-200">
-                      <List className="h-6 w-6 sm:h-7 sm:w-7 text-blue-600" />
-                    </div>
-                    <div className="flex-1 space-y-3 sm:space-y-4">
-                      <div>
-                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2">
-                          View Lost Items
-                        </h3>
-                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                          See all lost reports in your area and help reunite
-                          items with owners.
-                        </p>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
-                        onClick={() => router.push("/lost-item")}
-                      >
-                        View All
-                        <ArrowUpRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <QuickActionCard
+                title="View Lost Items"
+                description="See all lost reports in your area and help reunite items with owners."
+                buttonText="View All"
+                buttonColor="bg-blue-600 hover:bg-blue-700"
+                icon={List}
+                iconColor="from-blue-50 to-blue-100 border-blue-200 text-blue-600"
+                onClick={() => router.push("/lost-item")}
+              />
 
-              {/* Card 4 */}
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-gray-200/60 bg-white/90 backdrop-blur-sm hover:bg-white hover:border-gray-300">
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <div className="flex items-start space-x-4 sm:space-x-6">
-                    <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 group-hover:scale-105 transition-transform duration-200">
-                      <MessageSquare className="h-6 w-6 sm:h-7 sm:w-7 text-purple-600" />
-                    </div>
-                    <div className="flex-1 space-y-3 sm:space-y-4">
-                      <div>
-                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2">
-                          My Profile
-                        </h3>
-                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                          View your profile and manage your claims and
-                          communications with other users.
-                        </p>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-purple-600 hover:bg-purple-700 text-white shadow-sm"
-                        onClick={() => router.push("/profile?tab=claims")}
-                      >
-                        View Claims
-                        <ArrowUpRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <QuickActionCard
+                title="My Profile"
+                description="View your profile and manage your claims and communications with other users."
+                buttonText="View Claims"
+                buttonColor="bg-purple-600 hover:bg-purple-700"
+                icon={MessageSquare}
+                iconColor="from-purple-50 to-purple-100 border-purple-200 text-purple-600"
+                onClick={() => router.push("/profile?tab=claims")}
+              />
             </div>
           </div>
         </main>
