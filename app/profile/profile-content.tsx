@@ -17,8 +17,11 @@ import {
 import { ItemCard } from "@/components/ui/item-card";
 import { ClaimCard } from "@/components/ui/claim-card";
 import { ClaimsOnMyItemCard } from "@/components/ui/claims-on-my-items-card";
-import { ProfileSkeleton, SkeletonItemCard } from "@/components/ui/skeleton";
-import { SkeletonClaimCard } from "@/components/ui/skeleton";
+import {
+  ProfileSkeleton,
+  SkeletonItemCard,
+  SkeletonClaimCard,
+} from "@/components/ui/skeleton";
 import {
   Calendar,
   MessageSquare,
@@ -130,15 +133,15 @@ export default function ProfilePageContent() {
       }
 
       const { items: fetchedItems } = await itemsRes.json();
-      const claims = await claimsRes.json();
-      const claimsOnMyItems = await claimsOnMyItemsRes.json();
+      const claimsData = await claimsRes.json();
+      const claimsOnMyItemsData = await claimsOnMyItemsRes.json();
 
-      console.log("Fetched Items:", claims);
+      console.log("Fetched Items:", fetchedItems);
       setMyItems((prev) =>
         offset === 0 ? fetchedItems : [...prev, ...fetchedItems]
       );
-      setClaims(claims.claims || []);
-      setClaimsForMyItems(claimsOnMyItems.claims || []);
+      setClaims(claimsData.claims || []);
+      setClaimsForMyItems(claimsOnMyItemsData.claims || []);
       setHasMore(fetchedItems.length === limit);
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -155,11 +158,10 @@ export default function ProfilePageContent() {
 
   const loadMore = () => {
     setOffset((prev) => prev + limit);
-    fetchUserData();
+    // fetchUserData is called inside the useEffect when offset changes
   };
 
   const allItems = [...myItems.map((item) => ({ ...item }))];
-
   const filteredClaims = claims.filter((claim) => {
     if (filterStatus === "all") return true;
     return claim.status.toLowerCase() === filterStatus.toLowerCase();
@@ -225,7 +227,6 @@ export default function ProfilePageContent() {
             </div>
           </div>
         )}
-
         {/* Main Content */}
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs
@@ -233,11 +234,12 @@ export default function ProfilePageContent() {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div className="grid grid-cols-3 border border-gray-300 rounded-lg overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+              {/* Changed from grid to flex for mobile responsiveness */}
+              <div className="flex flex-wrap justify-center sm:grid sm:grid-cols-3 border border-gray-300 rounded-lg overflow-hidden mb-4 sm:mb-0">
                 <button
                   onClick={() => setActiveTab("my-items")}
-                  className={`flex items-center justify-center px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center px-4 py-2 text-sm font-medium transition-all duration-200 ${
                     activeTab === "my-items"
                       ? "bg-blue-600 text-white"
                       : "bg-white text-gray-700 hover:bg-gray-100"
@@ -248,7 +250,7 @@ export default function ProfilePageContent() {
                 </button>
                 <button
                   onClick={() => setActiveTab("claims")}
-                  className={`flex items-center justify-center px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center px-4 py-2 text-sm font-medium transition-all duration-200 ${
                     activeTab === "claims"
                       ? "bg-blue-600 text-white"
                       : "bg-white text-gray-700 hover:bg-gray-100"
@@ -259,7 +261,7 @@ export default function ProfilePageContent() {
                 </button>
                 <button
                   onClick={() => setActiveTab("claims-on-items")}
-                  className={`flex items-center justify-center px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center px-4 py-2 text-sm font-medium transition-all duration-200 ${
                     activeTab === "claims-on-items"
                       ? "bg-blue-600 text-white"
                       : "bg-white text-gray-700 hover:bg-gray-100"
@@ -270,7 +272,7 @@ export default function ProfilePageContent() {
                 </button>
               </div>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -283,9 +285,8 @@ export default function ProfilePageContent() {
                 </SelectContent>
               </Select>
             </div>
-
             <TabsContent value="my-items" className="space-y-4">
-              {loading ? (
+              {loading && offset === 0 ? ( // Only show skeleton on initial load or when offset is 0
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({ length: limit }).map((_, i) => (
                     <SkeletonItemCard key={i} />
@@ -347,9 +348,8 @@ export default function ProfilePageContent() {
                 </>
               )}
             </TabsContent>
-
             <TabsContent value="claims" className="space-y-4">
-              {loading ? (
+              {loading && offset === 0 ? ( // Only show skeleton on initial load or when offset is 0
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({ length: limit }).map((_, i) => (
                     <SkeletonClaimCard key={i} />
@@ -380,9 +380,8 @@ export default function ProfilePageContent() {
                 </div>
               )}
             </TabsContent>
-
             <TabsContent value="claims-on-items" className="space-y-4">
-              {loading ? (
+              {loading && offset === 0 ? ( // Only show skeleton on initial load or when offset is 0
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({ length: limit }).map((_, i) => (
                     <SkeletonClaimCard key={i} />
