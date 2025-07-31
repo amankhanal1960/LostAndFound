@@ -3,9 +3,9 @@ import { query } from "@/lib/db";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { claimId: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { claimId } = await params;
+  const { id: claimId } = await params;
 
   try {
     // Attempt to delete the item by ID; if you have FK constraints

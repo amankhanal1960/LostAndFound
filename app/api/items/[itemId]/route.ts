@@ -6,9 +6,9 @@ import { query } from "@/lib/db";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { itemId: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { itemId } = await params;
+  const { id: itemId } = await params;
   // 1) Get the user session
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -39,7 +39,7 @@ export async function DELETE(
     itemId,
   ]);
   return NextResponse.json(
-    { message: `Item ${params.itemId} deleted.` },
+    { message: `Item ${params} deleted.` },
     { status: rowCount ? 200 : 404 }
   );
 }

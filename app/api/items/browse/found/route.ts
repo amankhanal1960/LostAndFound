@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
        items.updatedat,
        items.status,
        items.location,
+       items.type,
        items.category, 
        users.contactnumber,
        users.fullname         AS reporter_name,

@@ -30,7 +30,7 @@ interface Item {
   reportedat: string;
   updatedat: string;
   status: "OPEN" | "RESOLVED";
-  type: "lost" | "found";
+  type: "LOST" | "FOUND";
   location: string | null;
   category: string | null;
   contactnumber: string | null;
@@ -340,7 +340,6 @@ export default function FoundItemsPage() {
                   <ItemCard
                     key={item.itemid}
                     item={item}
-                    type="found"
                     currentUserId={currentUserId}
                   />
                 ))}
