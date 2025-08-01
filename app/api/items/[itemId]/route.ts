@@ -6,15 +6,15 @@ import { query } from "@/lib/db";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ itemId: string }> }
 ) {
-  const { id: itemId } = await params;
+  const { itemId } = await params;
   // 1) Get the user session
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
-  const userId = session?.user?.id;
+  const userId = String(session?.user?.id);
 
   // 2) Fetch the item owner from DB
   const { rows } = await query(
@@ -24,7 +24,15 @@ export async function DELETE(
   if (rows.length === 0) {
     return NextResponse.json({ error: "Item not found" }, { status: 404 });
   }
-  const ownerId = rows[0].reportedby;
+
+  const ownerId = String(rows[0].reportedby);
+
+  // console.log("session.user.id:", session.user!.id, typeof session.user!.id);
+  // console.log(
+  //   "rows[0].reportedby:",
+  //   rows[0].reportedby,
+  //   typeof rows[0].reportedby
+  // );
 
   // 3) Authorize
   if (ownerId !== userId) {

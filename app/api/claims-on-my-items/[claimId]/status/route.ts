@@ -5,10 +5,10 @@ import { query } from "@/lib/db";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ claimId: string }> }
 ) {
   // 1) Extract and parse the dynamic claimId
-  const { id: claimId } = await params;
+  const { claimId } = await params;
 
   if (Number.isNaN(claimId)) {
     return NextResponse.json({ error: "Invalid claim ID" }, { status: 400 });

@@ -1,3 +1,5 @@
+import { Card, CardContent } from "@/components/ui/card";
+
 export const ProfileSkeleton = () => {
   return (
     <div className="bg-white border-b border-gray-200">
@@ -55,4 +57,19 @@ export const SkeletonClaimCard = () => (
       {/* date/button */}
     </div>
   </div>
+);
+
+export const SkeletonStatsCard = () => (
+  <Card className="animate-pulse border-gray-200/60 shadow-sm bg-white/90 backdrop-blur-sm">
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-3 w-full">
+          <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/4 mt-2"></div>
+          <div className="h-3 bg-gray-200 rounded w-2/3 mt-2"></div>
+        </div>
+        <div className="p-4 bg-gray-200 rounded-xl w-12 h-12" />
+      </div>
+    </CardContent>
+  </Card>
 );

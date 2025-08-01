@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import type { LucideIcon } from "lucide-react";
+import { SkeletonStatsCard } from "@/components/ui/skeleton";
 
 interface DashboardStats {
   reportedCount: number;
@@ -199,22 +200,6 @@ export default function DashboardPage() {
               <ArrowUpRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  // Skeleton placeholder for stat cards
-  const SkeletonStatsCard = () => (
-    <Card className="animate-pulse border-gray-200/60 shadow-sm bg-white/90 backdrop-blur-sm">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-3 w-full">
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-8 bg-gray-200 rounded w-1/4 mt-2"></div>
-            <div className="h-3 bg-gray-200 rounded w-2/3 mt-2"></div>
-          </div>
-          <div className="p-4 bg-gray-200 rounded-xl w-12 h-12" />
         </div>
       </CardContent>
     </Card>
