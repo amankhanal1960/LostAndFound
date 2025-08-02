@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { CommentsPopup } from "./commentPopup";
 import { useSnackbar } from "notistack";
 import { DeleteMenu } from "./delete-menu";
-
 import {
   MapPin,
   Calendar,
@@ -18,6 +16,7 @@ import {
   User,
   MessageCircle,
   Eye,
+  Phone,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 
@@ -50,7 +49,6 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
   const [claimText, setClaimText] = useState("");
   const router = useRouter();
   const { data: session, status } = useSession();
-
   const { enqueueSnackbar } = useSnackbar();
 
   if (status === "loading" || !session) {
@@ -71,7 +69,6 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
           claimText,
         }),
       });
-
       if (response.ok) {
         setIsClaiming(false);
         setClaimText("");
@@ -92,19 +89,18 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
       });
     }
   };
+
   const handleDelete = async () => {
     try {
       const response = await fetch(`/api/items/${item.itemid}`, {
         method: "DELETE",
       });
-
       if (response.status === 403) {
         // custom unauthorized message
         const body = await response.json();
         enqueueSnackbar(body.error, { variant: "warning" });
         return;
       }
-
       if (response.ok) {
         enqueueSnackbar("Item deleted successfully!", { variant: "success" });
         router.refresh();
@@ -134,7 +130,6 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
               {item.type === "FOUND" ? "Found" : "Lost"}
             </Badge>
           </div>
-
           <div className="absolute top-1 right-1 z-10 flex flex-col gap-1">
             {/* Item Status Badge */}
             <Badge
@@ -147,7 +142,6 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
               {item.status === "OPEN" ? "Open" : "Resolved"}
             </Badge>
           </div>
-
           {item.image ? (
             <Image
               src={item.image || "/placeholder.svg"}
@@ -161,7 +155,6 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
             </div>
           )}
         </div>
-
         {/* Content Section */}
         <div className="p-6">
           {/* Header */}
@@ -177,14 +170,12 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
               )}
             </div>
           </div>
-
           {/* Description */}
           {item.description && (
             <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
               {item.description}
             </p>
           )}
-
           {/* Location & Date */}
           <div className="space-y-2 mb-4">
             {item.location && (
@@ -204,7 +195,6 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
               </div>
             </div>
           </div>
-
           {/* Contact Info */}
           <div>
             <div className="border-t pt-4">
@@ -233,6 +223,12 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
                           Posted{" "}
                           {new Date(item.reportedat).toLocaleDateString()}
                         </p>
+                        {item.contactnumber && (
+                          <div className="flex items-center text-xs text-gray-500 mt-1">
+                            <Phone className="h-3 w-3 mr-1 text-gray-400" />
+                            <span>{item.contactnumber}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </Link>
@@ -243,7 +239,6 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
                 />
               </div>
             </div>
-
             {/* Action Buttons */}
             <div className="flex space-x-2">
               {/* Comments Button */}
@@ -255,10 +250,9 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Comments
               </Button>
-
               {/* Claim Button for Non-owners */}
               {item.status === "OPEN" && !isOwner && (
-                //  && !hasClaim
+                //  && !hasClaim
                 <Button
                   size="sm"
                   variant="outline"
@@ -272,7 +266,6 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
           </div>
         </div>
       </CardContent>
-
       {/* Comments Popup */}
       {isCommentsOpen && (
         <CommentsPopup
@@ -281,7 +274,6 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
           itemId={item.itemid.toString()}
         />
       )}
-
       {/* Claim Modal */}
       {isClaiming && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">

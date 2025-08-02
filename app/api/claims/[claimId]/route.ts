@@ -21,7 +21,6 @@ export async function DELETE(
         { status: 404 }
       );
     }
-
     return NextResponse.json(
       { message: `claim ${claimId} deleted successfully.` },
       { status: 200 }
