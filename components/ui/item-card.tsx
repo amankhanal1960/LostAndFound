@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -200,38 +199,35 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
             <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center justify-between mb-3">
-                  <Link href="/profile">
-                    <div className="flex items-center space-x-2">
-                      {item.reporter_image ? (
-                        <Image
-                          src={item.reporter_image || "/placeholder.svg"}
-                          alt={item.reporter_name}
-                          width={32}
-                          height={32}
-                          className="rounded-full"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <User className="h-4 w-4 text-blue-600" />
+                  <div className="flex items-center space-x-2">
+                    {item.reporter_image ? (
+                      <Image
+                        src={item.reporter_image || "/placeholder.svg"}
+                        alt={item.reporter_name}
+                        width={32}
+                        height={32}
+                        className="rounded-full"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <User className="h-4 w-4 text-blue-600" />
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-medium text-sm text-gray-900">
+                        {item.reporter_name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Posted {new Date(item.reportedat).toLocaleDateString()}
+                      </p>
+                      {item.contactnumber && (
+                        <div className="flex items-center text-xs text-gray-500 mt-1">
+                          <Phone className="h-3 w-3 mr-1 text-gray-400" />
+                          <span>{item.contactnumber}</span>
                         </div>
                       )}
-                      <div>
-                        <p className="font-medium text-sm text-gray-900">
-                          {item.reporter_name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Posted{" "}
-                          {new Date(item.reportedat).toLocaleDateString()}
-                        </p>
-                        {item.contactnumber && (
-                          <div className="flex items-center text-xs text-gray-500 mt-1">
-                            <Phone className="h-3 w-3 mr-1 text-gray-400" />
-                            <span>{item.contactnumber}</span>
-                          </div>
-                        )}
-                      </div>
                     </div>
-                  </Link>
+                  </div>
                 </div>
                 <DeleteMenu
                   onDelete={handleDelete}
