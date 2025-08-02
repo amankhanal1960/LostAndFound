@@ -341,7 +341,7 @@ export default function DashboardPage() {
               <QuickActionCard
                 title="Browse Found Items"
                 description="Check if someone has found your lost item or help others by claiming found items."
-                buttonText="Browse Items"
+                buttonText="Browse Found Items"
                 buttonColor="bg-green-600 hover:bg-green-700"
                 icon={Search}
                 iconColor="from-green-50 to-green-100 border-green-200 text-green-600"
@@ -351,7 +351,7 @@ export default function DashboardPage() {
               <QuickActionCard
                 title="View Lost Items"
                 description="See all lost reports in your area and help reunite items with owners."
-                buttonText="View All"
+                buttonText="Browse Lost Items"
                 buttonColor="bg-blue-600 hover:bg-blue-700"
                 icon={List}
                 iconColor="from-blue-50 to-blue-100 border-blue-200 text-blue-600"
@@ -361,7 +361,7 @@ export default function DashboardPage() {
               <QuickActionCard
                 title="My Profile"
                 description="View your profile and manage your claims and communications with other users."
-                buttonText="View Claims"
+                buttonText="Profile"
                 buttonColor="bg-purple-600 hover:bg-purple-700"
                 icon={MessageSquare}
                 iconColor="from-purple-50 to-purple-100 border-purple-200 text-purple-600"
