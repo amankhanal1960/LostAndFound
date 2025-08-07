@@ -39,6 +39,7 @@ interface Item {
 
 const categories = [
   "Electronics",
+  "Electronics",
   "Clothing & Accessories",
   "Bags & Luggage",
   "Documents & Cards",
