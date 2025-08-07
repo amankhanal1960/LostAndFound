@@ -68,7 +68,6 @@ export const SkeletonStatsCard = () => (
           <div className="h-8 bg-gray-200 rounded w-1/4 mt-2"></div>
           <div className="h-3 bg-gray-200 rounded w-2/3 mt-2"></div>
         </div>
-        <div className="p-4 bg-gray-200 rounded-xl w-12 h-12" />
       </div>
     </CardContent>
   </Card>

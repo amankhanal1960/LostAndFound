@@ -32,7 +32,6 @@ import {
   Mail,
   Loader2,
 } from "lucide-react";
-import Header from "@/components/header";
 import Link from "next/link";
 
 // Fixed Types
@@ -169,8 +168,7 @@ export default function ProfilePageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <div className="pt-16">
+      <div>
         {/* Profile Header */}
         {status === "loading" ? (
           <ProfileSkeleton />

@@ -59,7 +59,7 @@ export default function DashboardPage() {
       label: "Claims On My Items",
       href: "/profile?tab=claims-on-items",
     },
-    { icon: Settings, label: "Settings", href: "/settings" },
+    { icon: Settings, label: "Settings", href: "/not-found" },
   ];
 
   const SidebarContent = () => (
@@ -239,7 +239,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Fixed Header */}
       <Header />
-      <div className="flex pt-16">
+      <div className="flex">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block w-72 backdrop-blur-sm border-r border-gray-200/60">
           <div className="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">

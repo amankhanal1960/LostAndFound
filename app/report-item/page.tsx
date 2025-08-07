@@ -1,7 +1,6 @@
 "use client";
 import type React from "react";
 import { useState } from "react";
-import Header from "@/components/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
@@ -100,8 +99,7 @@ export default function ReportItemPage() {
   if (isSubmitted) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="pt-16 min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-6">
           <Card className="w-full max-w-md text-center">
             <CardContent className="p-8">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -253,8 +251,7 @@ export default function ReportItemPage() {
 
   return (
     <div>
-      <Header />
-      <div className="pt-16 p-6">
+      <div className="p-6">
         <div className="max-w-2xl mx-auto">
           <div className="my-6">
             <h1 className="text-2xl font-bold mb-2 text-gray-900">

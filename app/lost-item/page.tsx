@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Filter, Eye, Loader2 } from "lucide-react";
-import Header from "@/components/header";
 import { ItemCard } from "@/components/ui/item-card";
 import { useSession } from "next-auth/react";
 import { SkeletonItemCard } from "@/components/ui/skeleton";
@@ -39,16 +38,15 @@ interface Item {
 }
 
 const categories = [
-  "All Categories",
   "Electronics",
-  "Clothing",
-  "Accessories",
-  "Documents",
+  "Clothing & Accessories",
+  "Bags & Luggage",
+  "Documents & Cards",
+  "Jewelry & Watches",
   "Keys",
-  "Bags",
-  "Jewelry",
   "Sports Equipment",
-  "Books",
+  "Books & Stationery",
+  "Personal Items",
   "Other",
 ];
 
@@ -173,11 +171,8 @@ export default function FoundItemsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <Header />
-
       {/* Main Content */}
-      <div className="pt-16">
+      <div>
         {/* Page Header */}
         <div className="text-black">
           <div className="max-w-3xl mx-auto px-6">
