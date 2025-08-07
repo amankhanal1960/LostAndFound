@@ -143,10 +143,17 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
           </div>
           {item.image ? (
             <Image
-              src={item.image || "/placeholder.svg"}
+              src={item.image}
               fill
               alt={item.name}
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className={
+                // 1) default: crop to top
+                // 2) on hover: switch to contain so the whole image fits
+                // 3) smooth transition
+                "object-cover object-top " +
+                "transition-all duration-300 " +
+                "group-hover:object-contain group-hover:object-center"
+              }
             />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">
