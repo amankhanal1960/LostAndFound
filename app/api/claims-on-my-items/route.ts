@@ -10,9 +10,25 @@ export async function GET(req: NextRequest) {
   }
 
   const userId = session.user.id;
-  try {
-    const url = new URL(req.url);
+  const url = new URL(req.url);
+  const countOnly = url.searchParams.get("countOnly") === "true";
 
+  try {
+    if (countOnly) {
+      //only return the numbers of pending claims
+      const { rows } = await query(
+        `SELECT COUNT(*) AS count
+           FROM claims c
+           JOIN items i ON i.itemid = c.itemid
+          WHERE i.reportedby = $1
+            AND c.status = 'PENDING'`,
+        [userId]
+      );
+      const count = Number(rows[0].count);
+      return NextResponse.json({ count });
+    }
+
+    //otherwise the fallback
     const limit = parseInt(url.searchParams.get("limit") || "50", 10);
 
     const offset = parseInt(url.searchParams.get("offset") || "0", 10);
@@ -45,4 +61,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-

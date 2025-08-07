@@ -29,7 +29,7 @@ import {
   List,
   MessageSquare,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
@@ -91,16 +91,12 @@ export default function Header() {
   ];
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
   const router = useRouter();
 
   //session will be your full NextAuth session object (or undefined if not signed in)
   //status is one of loading, authenticated or unauthenticated
   const { data: session, status } = useSession();
-
-  // If NextAuth is still fetching the session ("loading"), you bail out and render nothing (avoids flashes of wrong UI).
-  if (status === "loading" || !session) {
-    return null;
-  }
 
   //Now that you know session exists, you grab its .user field, which holds { name, email, image, id }.
   const user = session?.user;
@@ -110,6 +106,28 @@ export default function Header() {
   const userName = user?.name ?? "Guest";
   const userEmail = user?.email ?? "";
   const userImage = user?.image ?? "/placeholder.svg?height=32&width=32";
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    async function loadNotification() {
+      try {
+        const res = await fetch(
+          `/api/claims-on-my-items?countOnly=true&reportedby=${session?.user?.id}`
+        );
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        setPendingCount(Number(data.count) || 0);
+      } catch (err) {
+        console.error("Error loading Notification stats:", err);
+      }
+    }
+    loadNotification();
+  }, [session?.user?.id, status]);
 
   return (
     <div>
@@ -137,11 +155,18 @@ export default function Header() {
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" className="relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="relative"
+              onClick={() => router.push("/profile?tab=claims-on-items")}
+            >
               <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                3
-              </span>
+              {pendingCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                  {pendingCount}
+                </span>
+              )}
             </Button>
 
             <DropdownMenu>

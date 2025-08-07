@@ -11,7 +11,6 @@ import {
   User,
   Settings,
   MessageSquare,
-  TrendingUp,
   ArrowUpRight,
 } from "lucide-react";
 import Header from "@/components/header";
@@ -111,46 +110,40 @@ export default function DashboardPage() {
     title,
     value,
     description,
-    icon: Icon,
     color,
     trend,
+    Onclick,
   }: {
     title: string;
     value: number;
     description: string;
-    icon: LucideIcon;
     color: string;
     trend?: string;
+    Onclick: () => void;
   }) => (
-    <Card className="border-gray-200/60 shadow-sm hover:shadow-md transition-all duration-200 bg-white/90 backdrop-blur-sm">
+    <Card
+      className="border-gray-200/60 shadow-sm hover:shadow-md transition-all duration-200 bg-white/90 backdrop-blur-sm"
+      onClick={Onclick}
+    >
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 ${color} rounded-full`}></div>
-              <p className="text-sm font-medium text-gray-700">{title}</p>
+              <div
+                className={`lg:w-3 lg:h-3 w-2 h-2 ${color} rounded-full`}
+              ></div>
+              <p className="lg:text-xl text-sm font-medium text-gray-700">
+                {title}
+              </p>
             </div>
             <p className="text-3xl font-bold text-gray-900">{value}</p>
-            <p className="text-sm text-gray-600">{description}</p>
+            <p className="lg:text-lg text-sm text-gray-600">{description}</p>
             {trend && (
               <div className="flex items-center space-x-1 text-xs text-green-600">
                 <ArrowUpRight className="h-3 w-3" />
                 <span>{trend}</span>
               </div>
             )}
-          </div>
-          <div
-            className={`p-4 ${color
-              .replace("bg-", "bg-")
-              .replace("-500", "-50")} rounded-xl border ${color
-              .replace("bg-", "border-")
-              .replace("-500", "-100")}`}
-          >
-            <Icon
-              className={`h-6 w-6 ${color
-                .replace("bg-", "text-")
-                .replace("-500", "-600")}`}
-            />
           </div>
         </div>
       </CardContent>
@@ -295,22 +288,22 @@ export default function DashboardPage() {
                   title="My Reports"
                   value={stats.reportedCount}
                   description="Items you've reported"
-                  icon={Plus}
                   color="bg-blue-500"
+                  Onclick={() => router.push("/profile?tab=my-items")}
                 />
                 <StatsCard
                   title="Active Claims"
                   value={stats.activeClaimsCount}
                   description="Items awaiting response"
-                  icon={MessageSquare}
                   color="bg-amber-500"
+                  Onclick={() => router.push("/profile?tab=claims-on-items")}
                 />
                 <StatsCard
                   title="Successful Returns"
                   value={stats.successfulReturnsCount}
                   description="Items successfully returned"
-                  icon={TrendingUp}
                   color="bg-green-500"
+                  Onclick={() => router.push("/profile?tab=claims-on-items")}
                 />
               </>
             )}
