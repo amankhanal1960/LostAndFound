@@ -1,11 +1,17 @@
 "use client";
 
-import React from "react";
-import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function Footer() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // If not authenticated, render nothing
+  if (status !== "authenticated" || !session) {
+    return null;
+  }
 
   const essentialLinks = [
     { label: "Contact Us", href: "/not-found" },
@@ -13,7 +19,6 @@ export default function Footer() {
     { label: "Terms of Service", href: "/not-found" },
     { label: "Developer Info", href: "/not-found" },
   ];
-
   const currentYear = new Date().getFullYear();
 
   return (

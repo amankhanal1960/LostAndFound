@@ -60,7 +60,7 @@ export default function NotFound() {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
             <Button asChild className="gap-2">
-              <Link href="/">
+              <Link href="/dashboard">
                 <Home className="size-4" />
                 Back to Home
               </Link>
