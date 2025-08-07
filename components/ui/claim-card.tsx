@@ -130,7 +130,7 @@ export function ClaimCard({ claim }: ClaimCardProps) {
               src={claim.image || "/placeholder.svg"}
               fill
               alt={claim.name}
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className="object-contain object-center"
             />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">

@@ -146,12 +146,7 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
               src={item.image}
               fill
               alt={item.name}
-              className={
-                // 1) default: crop to top
-                // 2) on hover: switch to contain so the whole image fits
-                // 3) smooth transition
-                "object-contain object-center"
-              }
+              className={"object-contain object-center"}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">
