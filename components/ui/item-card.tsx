@@ -150,9 +150,7 @@ export const ItemCard = ({ item, currentUserId }: ItemCardProps) => {
                 // 1) default: crop to top
                 // 2) on hover: switch to contain so the whole image fits
                 // 3) smooth transition
-                "object-cover object-top " +
-                "transition-all duration-300 " +
-                "group-hover:object-contain group-hover:object-center"
+                "object-contain object-center"
               }
             />
           ) : (
