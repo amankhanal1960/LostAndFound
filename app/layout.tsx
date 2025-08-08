@@ -1,44 +1,29 @@
-"use client";
-import { Geist } from "next/font/google";
-import { SnackbarProvider } from "notistack";
-import { SessionProvider } from "next-auth/react";
-import { usePathname } from "next/navigation";
 import "./globals.css";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+import { Geist } from "next/font/google";
+import Providers from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
+export const metadata = {
+  title: "Lost & Found Management System",
+  description: "A platform to report and find the lost items",
+  icons: {
+    icon: "/icon.png",
+  },
+};
+
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const pathname = usePathname();
-
-  // Pages where header/footer should be hidden
-  const hideHeaderFooter = [
-    "/",
-    "/auth/login",
-    "/auth/register",
-    "/not-found",
-  ].includes(pathname);
-
+}) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} antialiased`}>
-        <SessionProvider>
-          {!hideHeaderFooter && <Header />}
-          <main className={hideHeaderFooter ? "" : "pt-16"}>
-            <SnackbarProvider maxSnack={5} autoHideDuration={3000}>
-              {children}
-            </SnackbarProvider>
-          </main>
-          {!hideHeaderFooter && <Footer />}
-        </SessionProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
