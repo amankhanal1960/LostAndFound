@@ -53,6 +53,44 @@ npm run dev
 npm run build
 # start
 npm start
+```
+
+## Database schema (quick)
+
+This project uses PostgreSQL. Full DDL/migrations are in `sql/schema.sql`.
+
+Main tables:
+
+- `users` — auth & profile
+- `items` — lost/found posts
+- `claims` — user claims against items
+
+Minimal example (for quick reference):
+
+```sql
+CREATE TABLE users (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  email text UNIQUE NOT NULL,
+  password text,
+  name text,
+  created_at timestamptz DEFAULT now()
+);
+CREATE TABLE items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES users(id),
+  type text CHECK (type IN ('LOST','FOUND')),
+  title text,
+  image_url text,
+  resolved boolean DEFAULT false,
+  created_at timestamptz DEFAULT now()
+);
+CREATE TABLE claims (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  item_id uuid REFERENCES items(id),
+  claimer_id uuid REFERENCES users(id),
+  status text DEFAULT 'PENDING',
+  created_at timestamptz DEFAULT now()
+);
 
 ```
 
@@ -73,10 +111,13 @@ SUPABASE_SERVICE_ROLE_KEY=<server-only-key>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<optional>
 NODE_ENV=development
 
-Notes: keep `SUPABASE_SERVICE_ROLE_KEY` and DB credentials secret and set them in your production host’s environment settings (Vercel, Render, etc.).
+Notes: keep SUPABASE_SERVICE_ROLE_KEY and DB credentials secret and set them in your production host’s environment settings (Vercel, Render, etc.).
 
 SUPABASE_SERVICE_ROLE_KEY is powerful — never expose it to client code. Store it only in server envs (Vercel/Render/Heroku project settings).
 
 If you ever accidentally commit secrets, rotate them immediately and remove from Git history.
 
 For production, set NODE_ENV=production and use DATABASE_POSTGRES_URL + platform env settings.
+
+This project is open source. You are free to use, modify, and distribute it for any purpose, with or without changes, without asking for permission.
+Provided “as is” without warranty of any kind.
