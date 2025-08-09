@@ -100,16 +100,16 @@ You can also see the .env.example for the environment variables
 
 ### Create a `.env.local` in the project root (do not commit this file) and set values like:
 
-POSTGRES_URL=postgresql://<dbuser>:<dbpass>@localhost:5432/lost_and_found
-DATABASE_POSTGRES_URL=postgresql://<produser>:<prodpass>@<host>:5432/<dbname>
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=<a-strong-secret>
-GOOGLE_CLIENT_ID=<optional>
-GOOGLE_CLIENT_SECRET=<optional>
-NEXT_PUBLIC_SUPABASE_URL=https://<your-supabase>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<server-only-key>
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<optional>
-NODE_ENV=development
+- POSTGRES_URL=postgresql://<dbuser>:<dbpass>@localhost:5432/lost_and_found
+- DATABASE_POSTGRES_URL=postgresql://<produser>:<prodpass>@<host>:5432/<dbname>
+- NEXTAUTH_URL=http://localhost:3000
+- NEXTAUTH_SECRET=<a-strong-secret>
+- GOOGLE_CLIENT_ID=<optional>
+- GOOGLE_CLIENT_SECRET=<optional>
+- NEXT_PUBLIC_SUPABASE_URL=https://<your-supabase>.supabase.co
+- SUPABASE_SERVICE_ROLE_KEY=<server-only-key>
+- NEXT_PUBLIC_SUPABASE_ANON_KEY=<optional>
+- NODE_ENV=development
 
 ## Notes:
 
