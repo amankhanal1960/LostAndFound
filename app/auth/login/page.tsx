@@ -53,11 +53,10 @@ export default function LoginForm() {
       return;
     }
 
-    //calls nextauths credentials authentication flow
     const result = await signIn("credentials", {
       //tells nextauth not to automatically navigate on success or failure
       redirect: false,
-      //email and password come from your state
+
       email: form.email,
       password: form.password,
     });
@@ -72,7 +71,7 @@ export default function LoginForm() {
     } else {
       playSuccess();
       enqueueSnackbar("Login Successful! ", { variant: "success" });
-      router.push("/dashboard"); // Redirect after successful login
+      router.push("/dashboard");
       setIsSubmitting(false);
     }
   }

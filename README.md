@@ -1,6 +1,6 @@
 # Lost & Found Management System
 
-Simple application for a Lost & Found app built with Next.js (App Router), PostgreSQL, NextAuth, and Supabase Storage.
+Simple web application for a Lost & Found app built with Next.js (App Router), PostgreSQL, NextAuth, and Supabase Storage.
 
 ---
 
@@ -57,6 +57,8 @@ npm start
 ```
 
 ### Environment variables
+
+You can also see the .env.example for the environment variables
 
 # Create a `.env.local` in the project root (do not commit this file) and set values like:
 

@@ -7,14 +7,14 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ claimId: string }> }
 ) {
-  // 1) Extract and parse the dynamic claimId
+  // 1. Extract and parse the dynamic claimId
   const { claimId } = await params;
 
   if (Number.isNaN(claimId)) {
     return NextResponse.json({ error: "Invalid claim ID" }, { status: 400 });
   }
 
-  // 2) Authenticate
+  //authentication part
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
