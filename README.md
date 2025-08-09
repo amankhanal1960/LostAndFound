@@ -16,6 +16,9 @@ A minimal project that lets users sign up, sign in (Google + email/password), re
 - Create / list LOST and FOUND items
 - Image uploads to Supabase Storage (returns public URL)
 - Dashboard summary for logged-in users (counts of reports, claims, resolved items)
+- Create new claims on lost/found items
+- View claims made by the user and claims on user's reported items
+- Update claim status (accept or reject claims on your reported items)
 
 ---
 
