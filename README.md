@@ -94,11 +94,11 @@ CREATE TABLE claims (
 
 ```
 
-### Environment variables
+## Environment variables
 
 You can also see the .env.example for the environment variables
 
-# Create a `.env.local` in the project root (do not commit this file) and set values like:
+### Create a `.env.local` in the project root (do not commit this file) and set values like:
 
 POSTGRES_URL=postgresql://<dbuser>:<dbpass>@localhost:5432/lost_and_found
 DATABASE_POSTGRES_URL=postgresql://<produser>:<prodpass>@<host>:5432/<dbname>
@@ -111,13 +111,14 @@ SUPABASE_SERVICE_ROLE_KEY=<server-only-key>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<optional>
 NODE_ENV=development
 
-Notes: keep SUPABASE_SERVICE_ROLE_KEY and DB credentials secret and set them in your production host’s environment settings (Vercel, Render, etc.).
+## Notes:
 
-SUPABASE_SERVICE_ROLE_KEY is powerful — never expose it to client code. Store it only in server envs (Vercel/Render/Heroku project settings).
+- keep SUPABASE_SERVICE_ROLE_KEY and DB credentials secret and set them in your production host’s environment settings (Vercel, Render, etc.).
 
-If you ever accidentally commit secrets, rotate them immediately and remove from Git history.
+- SUPABASE_SERVICE_ROLE_KEY is powerful — never expose it to client code. Store it only in server envs (Vercel/Render/Heroku project settings).
 
-For production, set NODE_ENV=production and use DATABASE_POSTGRES_URL + platform env settings.
+- If you ever accidentally commit secrets, rotate them immediately and remove from Git history.
 
-This project is open source. You are free to use, modify, and distribute it for any purpose, with or without changes, without asking for permission.
-Provided “as is” without warranty of any kind.
+- For production, set NODE_ENV=production and use DATABASE_POSTGRES_URL + platform env settings.
+
+- This project is open source. You are free to use, modify, and distribute it for any purpose, with or without changes, without asking for permission. Provided “as is” without warranty of any kind.
