@@ -26,7 +26,7 @@ export async function GET() {
   const claimsRes = await query(
     `SELECT COUNT(*)::int AS count
        FROM claims
-      WHERE claims.claimerid = $1 AND claims.status = 'ACCEPTED'`,
+      WHERE claims.claimerid = $1 AND claims.status = 'PENDING'`,
     [userId]
   );
 
