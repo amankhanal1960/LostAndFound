@@ -25,8 +25,8 @@ export async function GET() {
   // 2) Active claims by me
   const claimsRes = await query(
     `SELECT COUNT(*)::int AS count
-       FROM claims JOIN items ON items.itemid = claims.claimid
-      WHERE claims.claimerid = $1 AND items.status = 'OPEN'`,
+       FROM claims
+      WHERE claims.claimerid = $1 AND claims.status = 'ACCEPTED'`,
     [userId]
   );
 
